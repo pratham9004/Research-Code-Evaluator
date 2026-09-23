@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Python testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Database — NEVER commit local research databases
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+database/*.db-journal
+database/*.db-wal
+database/*.db-shm
+
+# Node / frontend
+node_modules/
+dist/
+frontend/dist/
+frontend/.vite/
+frontend/.cache/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Certificates / private keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+
+# Editor / OS files
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# AI / local tool state
+.kilo/
+.kilocode/
+
+# Local generated exports
+exports/
+output/

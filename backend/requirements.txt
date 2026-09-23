@@ -1,0 +1,12 @@
+# Backend Python dependencies
+fastapi>=0.110
+uvicorn[standard]>=0.27
+sqlalchemy>=2.0
+pydantic>=2.5
+scipy>=1.11
+radon>=6.0
+ruff>=0.1
+bandit>=1.7
+pyyaml>=6.0
+openpyxl>=3.1
+reportlab>=4.0

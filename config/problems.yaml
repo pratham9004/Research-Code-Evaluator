@@ -1,0 +1,4173 @@
+# Research Code Evaluator — Problem Benchmark v2.0
+# P001-P010: LeetCode/HackerRank-style function-only problems
+# Users submit ONLY the solution function. The harness handles I/O, parsing,
+# invocation, and output serialisation.
+# harness_type: "typed" uses the new per-problem typed harness.
+
+problems:
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P001
+    title: Two Sum
+    description: |
+      Given an array of integers `nums` and an integer `target`, return the
+      indices of the two numbers that add up to `target`.
+      You may assume that each input has exactly one solution, and you may
+      not use the same element twice.
+      Return the two indices in any order.
+    category: Classic Algorithms
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: two_sum
+    input_spec: "JSON object {\"nums\": [...], \"target\": N}"
+    output_spec: "JSON array of two indices, e.g. [0,1] (sorted ascending)"
+    constraints: "2 <= nums.length <= 10^4 | -10^9 <= nums[i] <= 10^9 | Exactly one solution exists"
+    research_focus: "Correctness, algorithmic approach"
+    security_relevance: low
+    signature_python: "def two_sum(nums: list[int], target: int) -> list[int]:"
+    signature_java: "public static int[] twoSum(int[] nums, int target)"
+    signature_cpp: "vector<int> twoSum(vector<int>& nums, int target)"
+    signature_javascript: "function twoSum(nums, target)"
+    starter_template_python: |
+      def two_sum(nums: list[int], target: int) -> list[int]:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static int[] twoSum(int[] nums, int target) {
+              // Write your solution here
+              return new int[]{};
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      #include <unordered_map>
+      using namespace std;
+
+      vector<int> twoSum(vector<int>& nums, int target) {
+          // Write your solution here
+          return {};
+      }
+    starter_template_javascript: |
+      function twoSum(nums, target) {
+          // Write your solution here
+      }
+      module.exports = { twoSum };
+    test_cases:
+      - input: '{"nums":[2,7,11,15],"target":9}'
+        expected: "[0,1]"
+        case_type: normal
+      - input: '{"nums":[3,2,4],"target":6}'
+        expected: "[1,2]"
+        case_type: normal
+      - input: '{"nums":[3,3],"target":6}'
+        expected: "[0,1]"
+        case_type: edge
+      - input: '{"nums":[1,2,3,4,5],"target":9}'
+        expected: "[3,4]"
+        case_type: normal
+      - input: '{"nums":[-1,-2,-3,-4,-5],"target":-8}'
+        expected: "[2,4]"
+        case_type: negative
+      - input: '{"nums":[0,4,3,0],"target":0}'
+        expected: "[0,3]"
+        case_type: edge
+      - input: '{"nums":[1,5,3,2],"target":4}'
+        expected: "[0,2]"
+        case_type: normal
+      - input: '{"nums":[100,200,300,400],"target":700}'
+        expected: "[2,3]"
+        case_type: normal
+      - input: '{"nums":[-3,4,3,90],"target":0}'
+        expected: "[0,2]"
+        case_type: negative
+      - input: '{"nums":[1,2],"target":3}'
+        expected: "[0,1]"
+        case_type: boundary
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P002
+    title: Maximum Subarray Sum
+    description: |
+      Given an integer array `nums`, find the contiguous subarray (containing
+      at least one number) which has the largest sum and return its sum.
+      (Classic Kadane's algorithm problem.)
+    category: Classic Algorithms
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: max_subarray
+    input_spec: "JSON object {\"nums\": [...]}"
+    output_spec: "Integer: maximum subarray sum"
+    constraints: "1 <= nums.length <= 10^5 | -10^4 <= nums[i] <= 10^4"
+    research_focus: "Dynamic programming, correctness"
+    security_relevance: low
+    signature_python: "def max_subarray(nums: list[int]) -> int:"
+    signature_java: "public static int maxSubarray(int[] nums)"
+    signature_cpp: "int maxSubarray(vector<int>& nums)"
+    signature_javascript: "function maxSubarray(nums)"
+    starter_template_python: |
+      def max_subarray(nums: list[int]) -> int:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static int maxSubarray(int[] nums) {
+              // Write your solution here
+              return 0;
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      using namespace std;
+
+      int maxSubarray(vector<int>& nums) {
+          // Write your solution here
+          return 0;
+      }
+    starter_template_javascript: |
+      function maxSubarray(nums) {
+          // Write your solution here
+      }
+      module.exports = { maxSubarray };
+    test_cases:
+      - input: '{"nums":[-2,1,-3,4,-1,2,1,-5,4]}'
+        expected: "6"
+        case_type: normal
+      - input: '{"nums":[1]}'
+        expected: "1"
+        case_type: boundary
+      - input: '{"nums":[5,4,-1,7,8]}'
+        expected: "23"
+        case_type: normal
+      - input: '{"nums":[-1,-2,-3,-4]}'
+        expected: "-1"
+        case_type: all_negative
+      - input: '{"nums":[0,0,0]}'
+        expected: "0"
+        case_type: edge
+      - input: '{"nums":[100,-50,200]}'
+        expected: "250"
+        case_type: normal
+      - input: '{"nums":[-2,-1]}'
+        expected: "-1"
+        case_type: all_negative
+      - input: '{"nums":[1,2,3,4,5]}'
+        expected: "15"
+        case_type: all_positive
+      - input: '{"nums":[-5,4,6,-3,2,-1]}'
+        expected: "10"
+        case_type: normal
+      - input: '{"nums":[2,-1,2,-1,2]}'
+        expected: "4"
+        case_type: alternating
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P003
+    title: Binary Search
+    description: |
+      Given a sorted array of distinct integers `nums` and a `target` value,
+      return the index of `target` if it exists, or `-1` if it does not.
+      Your implementation must run in O(log n) time.
+    category: Classic Algorithms
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: binary_search
+    input_spec: "JSON object {\"nums\": [...sorted...], \"target\": N}"
+    output_spec: "Integer index of target, or -1 if not found"
+    constraints: "1 <= nums.length <= 10^4 | All nums[i] are distinct | Array is sorted ascending"
+    research_focus: "Correctness, O(log n) requirement"
+    security_relevance: low
+    signature_python: "def binary_search(nums: list[int], target: int) -> int:"
+    signature_java: "public static int binarySearch(int[] nums, int target)"
+    signature_cpp: "int binarySearch(vector<int>& nums, int target)"
+    signature_javascript: "function binarySearch(nums, target)"
+    starter_template_python: |
+      def binary_search(nums: list[int], target: int) -> int:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static int binarySearch(int[] nums, int target) {
+              // Write your solution here
+              return -1;
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      using namespace std;
+
+      int binarySearch(vector<int>& nums, int target) {
+          // Write your solution here
+          return -1;
+      }
+    starter_template_javascript: |
+      function binarySearch(nums, target) {
+          // Write your solution here
+      }
+      module.exports = { binarySearch };
+    test_cases:
+      - input: '{"nums":[-1,0,3,5,9,12],"target":9}'
+        expected: "4"
+        case_type: normal
+      - input: '{"nums":[-1,0,3,5,9,12],"target":2}'
+        expected: "-1"
+        case_type: not_found
+      - input: '{"nums":[5],"target":5}'
+        expected: "0"
+        case_type: boundary
+      - input: '{"nums":[5],"target":3}'
+        expected: "-1"
+        case_type: boundary
+      - input: '{"nums":[1,2,3,4,5,6,7,8,9,10],"target":1}'
+        expected: "0"
+        case_type: first_element
+      - input: '{"nums":[1,2,3,4,5,6,7,8,9,10],"target":10}'
+        expected: "9"
+        case_type: last_element
+      - input: '{"nums":[1,3,5,7,9],"target":5}'
+        expected: "2"
+        case_type: middle
+      - input: '{"nums":[2,4,6,8,10],"target":7}'
+        expected: "-1"
+        case_type: not_found
+      - input: '{"nums":[-10,-5,0,5,10],"target":-10}'
+        expected: "0"
+        case_type: negative
+      - input: '{"nums":[1,2,3],"target":4}'
+        expected: "-1"
+        case_type: beyond_range
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P004
+    title: Merge Sorted Arrays
+    description: |
+      Given two sorted integer arrays `nums1` and `nums2`, merge them into
+      a single sorted array and return it.
+      The returned array should contain all elements from both arrays in
+      non-decreasing order.
+    category: Classic Algorithms
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: merge_sorted_arrays
+    input_spec: "JSON object {\"nums1\": [...], \"nums2\": [...]}"
+    output_spec: "JSON array of merged sorted integers"
+    constraints: "0 <= nums1.length, nums2.length <= 200 | -10^9 <= nums[i] <= 10^9 | Both arrays are sorted"
+    research_focus: "Correctness, merge logic"
+    security_relevance: low
+    signature_python: "def merge_sorted_arrays(nums1: list[int], nums2: list[int]) -> list[int]:"
+    signature_java: "public static int[] mergeSortedArrays(int[] nums1, int[] nums2)"
+    signature_cpp: "vector<int> mergeSortedArrays(vector<int>& nums1, vector<int>& nums2)"
+    signature_javascript: "function mergeSortedArrays(nums1, nums2)"
+    starter_template_python: |
+      def merge_sorted_arrays(nums1: list[int], nums2: list[int]) -> list[int]:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static int[] mergeSortedArrays(int[] nums1, int[] nums2) {
+              // Write your solution here
+              return new int[]{};
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      using namespace std;
+
+      vector<int> mergeSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+          // Write your solution here
+          return {};
+      }
+    starter_template_javascript: |
+      function mergeSortedArrays(nums1, nums2) {
+          // Write your solution here
+      }
+      module.exports = { mergeSortedArrays };
+    test_cases:
+      - input: '{"nums1":[1,2,3],"nums2":[2,5,6]}'
+        expected: "[1,2,2,3,5,6]"
+        case_type: normal
+      - input: '{"nums1":[],"nums2":[1]}'
+        expected: "[1]"
+        case_type: edge
+      - input: '{"nums1":[1],"nums2":[]}'
+        expected: "[1]"
+        case_type: edge
+      - input: '{"nums1":[],"nums2":[]}'
+        expected: "[]"
+        case_type: empty
+      - input: '{"nums1":[1,3,5],"nums2":[2,4,6]}'
+        expected: "[1,2,3,4,5,6]"
+        case_type: interleaved
+      - input: '{"nums1":[1,2,3],"nums2":[4,5,6]}'
+        expected: "[1,2,3,4,5,6]"
+        case_type: non_overlapping
+      - input: '{"nums1":[4,5,6],"nums2":[1,2,3]}'
+        expected: "[1,2,3,4,5,6]"
+        case_type: reversed_order
+      - input: '{"nums1":[-3,-1,0],"nums2":[-2,1,2]}'
+        expected: "[-3,-2,-1,0,1,2]"
+        case_type: negative
+      - input: '{"nums1":[1,1,1],"nums2":[1,1,1]}'
+        expected: "[1,1,1,1,1,1]"
+        case_type: duplicates
+      - input: '{"nums1":[0],"nums2":[0]}'
+        expected: "[0,0]"
+        case_type: boundary
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P005
+    title: Balanced Brackets
+    description: |
+      Given a string `s` containing only the characters `(`, `)`, `{`, `}`,
+      `[`, and `]`, determine if the input string is valid.
+      A string is valid if:
+        - Every open bracket is closed by the same type of bracket.
+        - Open brackets are closed in the correct order.
+        - Every close bracket has a corresponding open bracket.
+      Return `true` if valid, `false` otherwise.
+    category: Classic Algorithms
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_balanced
+    input_spec: "JSON object {\"s\": \"<bracket string>\"}"
+    output_spec: "\"true\" or \"false\""
+    constraints: "1 <= s.length <= 10^4 | s consists only of '()[]{}'"
+    research_focus: "Stack usage, correctness"
+    security_relevance: low
+    signature_python: "def is_balanced(s: str) -> bool:"
+    signature_java: "public static boolean isBalanced(String s)"
+    signature_cpp: "bool isBalanced(const string& s)"
+    signature_javascript: "function isBalanced(s)"
+    starter_template_python: |
+      def is_balanced(s: str) -> bool:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static boolean isBalanced(String s) {
+              // Write your solution here
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <stack>
+      using namespace std;
+
+      bool isBalanced(const string& s) {
+          // Write your solution here
+          return false;
+      }
+    starter_template_javascript: |
+      function isBalanced(s) {
+          // Write your solution here
+      }
+      module.exports = { isBalanced };
+    test_cases:
+      - input: '{"s":"()"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"s":"()[]{}"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"s":"(]"}'
+        expected: "false"
+        case_type: mismatch
+      - input: '{"s":"([)]"}'
+        expected: "false"
+        case_type: wrong_order
+      - input: '{"s":"{[]}"}'
+        expected: "true"
+        case_type: nested
+      - input: '{"s":""}'
+        expected: "true"
+        case_type: empty
+      - input: '{"s":"((("}'
+        expected: "false"
+        case_type: unclosed
+      - input: '{"s":"}}}"}'
+        expected: "false"
+        case_type: extra_closing
+      - input: '{"s":"({[]})"}'
+        expected: "true"
+        case_type: deeply_nested
+      - input: '{"s":"([{}])"}'
+        expected: "true"
+        case_type: complex
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P006
+    title: CSV Record Field Count
+    description: |
+      Given a single CSV line (a string), count the number of fields.
+      Fields are separated by commas. A field may be enclosed in double
+      quotes, in which case it may contain commas and escaped quotes (`""`).
+      Return the integer count of fields.
+    category: Data Processing
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: csv_field_count
+    input_spec: "JSON object {\"line\": \"<csv line>\"}"
+    output_spec: "Integer: number of fields in the CSV line"
+    constraints: "0 <= line.length <= 10^4 | Standard CSV quoting rules apply"
+    research_focus: "String parsing, edge case handling"
+    security_relevance: low
+    signature_python: "def csv_field_count(line: str) -> int:"
+    signature_java: "public static int csvFieldCount(String line)"
+    signature_cpp: "int csvFieldCount(const string& line)"
+    signature_javascript: "function csvFieldCount(line)"
+    starter_template_python: |
+      def csv_field_count(line: str) -> int:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static int csvFieldCount(String line) {
+              // Write your solution here
+              return 0;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      int csvFieldCount(const string& line) {
+          // Write your solution here
+          return 0;
+      }
+    starter_template_javascript: |
+      function csvFieldCount(line) {
+          // Write your solution here
+      }
+      module.exports = { csvFieldCount };
+    test_cases:
+      - input: '{"line":"a,b,c"}'
+        expected: "3"
+        case_type: normal
+      - input: '{"line":"one"}'
+        expected: "1"
+        case_type: single_field
+      - input: '{"line":""}'
+        expected: "1"
+        case_type: empty_line
+      - input: '{"line":"a,\"b,c\",d"}'
+        expected: "3"
+        case_type: quoted_comma
+      - input: '{"line":"\"hello world\",foo,bar"}'
+        expected: "3"
+        case_type: quoted_space
+      - input: '{"line":"1,2,3,4,5"}'
+        expected: "5"
+        case_type: five_fields
+      - input: '{"line":"a,,b"}'
+        expected: "3"
+        case_type: empty_field
+      - input: '{"line":"\"a\"\"b\",c"}'
+        expected: "2"
+        case_type: escaped_quote
+      - input: '{"line":"x,y,z,w"}'
+        expected: "4"
+        case_type: four_fields
+      - input: '{"line":"\"comma,inside\",normal,\"also,quoted\""}'
+        expected: "3"
+        case_type: multiple_quoted
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P007
+    title: Log Level Counter
+    description: |
+      Given a multiline log string where each line begins with a log level
+      tag (ERROR, WARNING, INFO, or DEBUG), count the occurrences of each
+      level and return a dictionary/map with keys ERROR, WARNING, INFO, DEBUG.
+      Lines that do not match a known level are ignored.
+      Return a dict with all four keys present (use 0 for absent levels).
+    category: Data Processing
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: count_log_levels
+    input_spec: "JSON object {\"log\": \"<multiline log string>\"}"
+    output_spec: "JSON object {\"ERROR\":N,\"WARNING\":N,\"INFO\":N,\"DEBUG\":N}"
+    constraints: "Each line starts with ERROR/WARNING/INFO/DEBUG followed by a space or colon | 0 <= lines <= 10^4"
+    research_focus: "String parsing, map construction"
+    security_relevance: low
+    signature_python: "def count_log_levels(log: str) -> dict:"
+    signature_java: "public static Map<String,Integer> countLogLevels(String log)"
+    signature_cpp: "map<string,int> countLogLevels(const string& log)"
+    signature_javascript: "function countLogLevels(log)"
+    starter_template_python: |
+      def count_log_levels(log: str) -> dict:
+          # Return a dict with keys ERROR, WARNING, INFO, DEBUG
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static Map<String,Integer> countLogLevels(String log) {
+              // Return a Map with keys ERROR, WARNING, INFO, DEBUG
+              return new HashMap<>();
+          }
+      }
+    starter_template_cpp: |
+      #include <map>
+      #include <string>
+      using namespace std;
+
+      map<string,int> countLogLevels(const string& log) {
+          // Return a map with keys ERROR, WARNING, INFO, DEBUG
+          return {};
+      }
+    starter_template_javascript: |
+      function countLogLevels(log) {
+          // Return an object with keys ERROR, WARNING, INFO, DEBUG
+      }
+      module.exports = { countLogLevels };
+    test_cases:
+      - input: "{\"log\":\"ERROR: something failed\\nINFO: started\\nDEBUG: value=1\"}"
+        expected: '{"ERROR":1,"WARNING":0,"INFO":1,"DEBUG":1}'
+        case_type: normal
+      - input: "{\"log\":\"INFO: a\\nINFO: b\\nINFO: c\"}"
+        expected: '{"ERROR":0,"WARNING":0,"INFO":3,"DEBUG":0}'
+        case_type: single_level
+      - input: "{\"log\":\"\"}"
+        expected: '{"ERROR":0,"WARNING":0,"INFO":0,"DEBUG":0}'
+        case_type: empty
+      - input: "{\"log\":\"WARNING: disk low\\nERROR: crash\\nERROR: crash2\\nDEBUG: ok\"}"
+        expected: '{"ERROR":2,"WARNING":1,"INFO":0,"DEBUG":1}'
+        case_type: mixed
+      - input: "{\"log\":\"DEBUG: x\\nDEBUG: y\\nDEBUG: z\"}"
+        expected: '{"ERROR":0,"WARNING":0,"INFO":0,"DEBUG":3}'
+        case_type: all_debug
+      - input: "{\"log\":\"INFO: boot\\nERROR: fail\\nWARNING: low mem\\nDEBUG: trace\"}"
+        expected: '{"ERROR":1,"WARNING":1,"INFO":1,"DEBUG":1}'
+        case_type: one_each
+      - input: "{\"log\":\"some random line\\nERROR: real error\"}"
+        expected: '{"ERROR":1,"WARNING":0,"INFO":0,"DEBUG":0}'
+        case_type: with_noise
+      - input: "{\"log\":\"ERROR: a\\nERROR: b\\nERROR: c\\nERROR: d\"}"
+        expected: '{"ERROR":4,"WARNING":0,"INFO":0,"DEBUG":0}'
+        case_type: all_errors
+      - input: "{\"log\":\"WARNING: w1\\nWARNING: w2\"}"
+        expected: '{"ERROR":0,"WARNING":2,"INFO":0,"DEBUG":0}'
+        case_type: all_warnings
+      - input: "{\"log\":\"INFO: start\\nDEBUG: init\\nWARNING: slow\\nERROR: crash\\nINFO: end\"}"
+        expected: '{"ERROR":1,"WARNING":1,"INFO":2,"DEBUG":1}'
+        case_type: complex
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P008
+    title: Key-Value Parser
+    description: |
+      Given a string `s` containing comma-separated key=value pairs, parse it
+      into a dictionary/map and return it.
+      Keys and values are separated by `=`. Pairs are separated by `,`.
+      Keys and values may contain spaces (stripped) but will not contain `=` or `,`.
+      Return the resulting mapping.
+    category: Data Processing
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: parse_key_value
+    input_spec: "JSON object {\"s\": \"key1=val1,key2=val2,...\"}"
+    output_spec: "JSON object with string keys and string values, sorted by key"
+    constraints: "0 <= pairs <= 100 | Keys are unique | No = or , in key/value text"
+    research_focus: "String parsing, map construction"
+    security_relevance: low
+    signature_python: "def parse_key_value(s: str) -> dict:"
+    signature_java: "public static Map<String,String> parseKeyValue(String s)"
+    signature_cpp: "map<string,string> parseKeyValue(const string& s)"
+    signature_javascript: "function parseKeyValue(s)"
+    starter_template_python: |
+      def parse_key_value(s: str) -> dict:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static Map<String,String> parseKeyValue(String s) {
+              // Write your solution here
+              return new HashMap<>();
+          }
+      }
+    starter_template_cpp: |
+      #include <map>
+      #include <string>
+      using namespace std;
+
+      map<string,string> parseKeyValue(const string& s) {
+          // Write your solution here
+          return {};
+      }
+    starter_template_javascript: |
+      function parseKeyValue(s) {
+          // Write your solution here
+      }
+      module.exports = { parseKeyValue };
+    test_cases:
+      - input: '{"s":"a=1,b=2,c=3"}'
+        expected: '{"a":"1","b":"2","c":"3"}'
+        case_type: normal
+      - input: '{"s":"name=Alice,age=30"}'
+        expected: '{"age":"30","name":"Alice"}'
+        case_type: normal
+      - input: '{"s":"x=hello world"}'
+        expected: '{"x":"hello world"}'
+        case_type: space_in_value
+      - input: '{"s":""}'
+        expected: '{}'
+        case_type: empty
+      - input: '{"s":"key=value"}'
+        expected: '{"key":"value"}'
+        case_type: single_pair
+      - input: '{"s":"z=3,a=1,m=2"}'
+        expected: '{"a":"1","m":"2","z":"3"}'
+        case_type: sort_order
+      - input: '{"s":"foo=bar,baz=qux,abc=xyz"}'
+        expected: '{"abc":"xyz","baz":"qux","foo":"bar"}'
+        case_type: three_pairs
+      - input: '{"s":"a=,b=empty"}'
+        expected: '{"a":"","b":"empty"}'
+        case_type: empty_value
+      - input: '{"s":"color=red,size=large,weight=heavy"}'
+        expected: '{"color":"red","size":"large","weight":"heavy"}'
+        case_type: normal
+      - input: '{"s":"k1=v1,k2=v2,k3=v3,k4=v4,k5=v5"}'
+        expected: '{"k1":"v1","k2":"v2","k3":"v3","k4":"v4","k5":"v5"}'
+        case_type: five_pairs
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P009
+    title: Date Format Normalizer
+    description: |
+      Given a date string in one of the following formats:
+        - MM/DD/YYYY  (e.g. 01/15/2023)
+        - DD-MM-YYYY  (e.g. 15-01-2023)
+        - YYYY.MM.DD  (e.g. 2023.01.15)
+      Return the date in ISO 8601 format: YYYY-MM-DD.
+      You may assume the input is always a valid date in one of the three formats.
+    category: Data Processing
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: normalize_date
+    input_spec: "JSON object {\"date\": \"<date string>\"}"
+    output_spec: "ISO date string YYYY-MM-DD"
+    constraints: "Input is always a valid date in one of the three listed formats"
+    research_focus: "String parsing, format detection"
+    security_relevance: low
+    signature_python: "def normalize_date(date: str) -> str:"
+    signature_java: "public static String normalizeDate(String date)"
+    signature_cpp: "string normalizeDate(const string& date)"
+    signature_javascript: "function normalizeDate(date)"
+    starter_template_python: |
+      def normalize_date(date: str) -> str:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String normalizeDate(String date) {
+              // Write your solution here
+              return "";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string normalizeDate(const string& date) {
+          // Write your solution here
+          return "";
+      }
+    starter_template_javascript: |
+      function normalizeDate(date) {
+          // Write your solution here
+      }
+      module.exports = { normalizeDate };
+    test_cases:
+      - input: '{"date":"01/15/2023"}'
+        expected: "2023-01-15"
+        case_type: MM_DD_YYYY
+      - input: '{"date":"15-01-2023"}'
+        expected: "2023-01-15"
+        case_type: DD_MM_YYYY
+      - input: '{"date":"2023.01.15"}'
+        expected: "2023-01-15"
+        case_type: YYYY_MM_DD
+      - input: '{"date":"12/31/2000"}'
+        expected: "2000-12-31"
+        case_type: MM_DD_YYYY
+      - input: '{"date":"31-12-2000"}'
+        expected: "2000-12-31"
+        case_type: DD_MM_YYYY
+      - input: '{"date":"2000.12.31"}'
+        expected: "2000-12-31"
+        case_type: YYYY_MM_DD
+      - input: '{"date":"07/04/1776"}'
+        expected: "1776-07-04"
+        case_type: historical
+      - input: '{"date":"01-01-2024"}'
+        expected: "2024-01-01"
+        case_type: new_year
+      - input: '{"date":"2024.02.29"}'
+        expected: "2024-02-29"
+        case_type: leap_year
+      - input: '{"date":"11/11/1918"}'
+        expected: "1918-11-11"
+        case_type: historical
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P010
+    title: Word Frequency
+    description: |
+      Given a string `text`, count the frequency of each word.
+      Words are sequences of alphabetic characters only (ignore punctuation).
+      Comparison is case-insensitive; return lowercase words.
+      Return the result as a list of [word, count] pairs sorted by count
+      descending, then alphabetically ascending for ties.
+    category: Data Processing
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: word_frequency
+    input_spec: "JSON object {\"text\": \"<text string>\"}"
+    output_spec: "JSON array of [word, count] pairs, sorted by count desc then alpha asc"
+    constraints: "0 <= text.length <= 10^4 | Only ASCII text"
+    research_focus: "String processing, sorting"
+    security_relevance: low
+    signature_python: "def word_frequency(text: str) -> dict:"
+    signature_java: "public static Map<String,Integer> wordFrequency(String text)"
+    signature_cpp: "vector<pair<string,int>> wordFrequency(const string& text)"
+    signature_javascript: "function wordFrequency(text)"
+    starter_template_python: |
+      def word_frequency(text: str) -> dict:
+          # Return a dict mapping word -> count
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static Map<String,Integer> wordFrequency(String text) {
+              // Return a Map mapping word -> count (lowercase words)
+              return new HashMap<>();
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      #include <string>
+      #include <map>
+      using namespace std;
+
+      // Return pairs sorted by count desc, then alpha asc
+      vector<pair<string,int>> wordFrequency(const string& text) {
+          // Write your solution here
+          return {};
+      }
+    starter_template_javascript: |
+      function wordFrequency(text) {
+          // Return an object mapping word -> count (lowercase words)
+      }
+      module.exports = { wordFrequency };
+    test_cases:
+      - input: '{"text":"hello world hello"}'
+        expected: '[["hello",2],["world",1]]'
+        case_type: normal
+      - input: '{"text":"the cat sat on the mat"}'
+        expected: '[["the",2],["cat",1],["mat",1],["on",1],["sat",1]]'
+        case_type: normal
+      - input: '{"text":""}'
+        expected: '[]'
+        case_type: empty
+      - input: '{"text":"Hello hello HELLO"}'
+        expected: '[["hello",3]]'
+        case_type: case_insensitive
+      - input: '{"text":"one"}'
+        expected: '[["one",1]]'
+        case_type: single_word
+      - input: '{"text":"a a a b b c"}'
+        expected: '[["a",3],["b",2],["c",1]]'
+        case_type: sorted_by_count
+      - input: '{"text":"hello, world! hello."}'
+        expected: '[["hello",2],["world",1]]'
+        case_type: punctuation
+      - input: '{"text":"dog cat bird cat dog dog"}'
+        expected: '[["dog",3],["cat",2],["bird",1]]'
+        case_type: multiple_counts
+      - input: '{"text":"apple banana apple cherry banana apple"}'
+        expected: '[["apple",3],["banana",2],["cherry",1]]'
+        case_type: three_words
+      - input: '{"text":"tie tie alpha alpha"}'
+        expected: '[["alpha",2],["tie",2]]'
+        case_type: alpha_tiebreak
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P011
+    title: Email Validator
+    description: |
+      Given an email address string, determine whether it is valid.
+      Validation rules:
+        - Must contain exactly one @ symbol
+        - Local part (before @): 1+ chars, only [a-zA-Z0-9._%+-], no leading/trailing dot, no consecutive dots
+        - Domain part (after @): dot-separated labels, no leading/trailing dot or hyphen per label
+        - TLD (last label): 2-6 alphabetic characters only
+      Return true if valid, false otherwise.
+    category: Input Validation
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_valid_email
+    input_spec: 'JSON object {"input": "<email string>"}'
+    output_spec: '"true" or "false"'
+    constraints: "Defined validation rules apply — see description"
+    research_focus: "Input validation, regex, string parsing"
+    security_relevance: medium
+    signature_python: "def is_valid_email(email: str) -> bool:"
+    signature_java: "public static boolean isValidEmail(String email)"
+    signature_cpp: "bool isValidEmail(const string& email)"
+    signature_javascript: "function isValidEmail(email)"
+    starter_template_python: |
+      def is_valid_email(email: str) -> bool:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static boolean isValidEmail(String email) {
+              // Write your solution here
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <regex>
+      using namespace std;
+
+      bool isValidEmail(const string& email) {
+          // Write your solution here
+          return false;
+      }
+    starter_template_javascript: |
+      function isValidEmail(email) {
+          // Write your solution here
+      }
+      module.exports = { isValidEmail };
+    test_cases:
+      - input: '{"input":"user@example.com"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"user.name+tag@domain.co.uk"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"no-at-sign"}'
+        expected: "false"
+        case_type: missing_at
+      - input: '{"input":"@nodomain.com"}'
+        expected: "false"
+        case_type: empty_local
+      - input: '{"input":"user@.com"}'
+        expected: "false"
+        case_type: leading_dot_domain
+      - input: '{"input":"user@domain"}'
+        expected: "false"
+        case_type: no_tld
+      - input: '{"input":"user..name@example.com"}'
+        expected: "false"
+        case_type: consecutive_dots
+      - input: '{"input":"a@b.io"}'
+        expected: "true"
+        case_type: short_but_valid
+      - input: '{"input":"user@domain.toolongtld1234"}'
+        expected: "false"
+        case_type: tld_too_long
+      - input: '{"input":"USER@EXAMPLE.COM"}'
+        expected: "true"
+        case_type: uppercase
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P012
+    title: Password Policy Validator
+    description: |
+      Given a password string, determine whether it satisfies the following policy:
+        - Minimum 8 characters
+        - At least 1 uppercase letter (A-Z)
+        - At least 1 lowercase letter (a-z)
+        - At least 1 digit (0-9)
+        - At least 1 special character from the set: !@#$%^&*
+      Return true if all rules pass, false otherwise.
+    category: Input Validation
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_valid_password
+    input_spec: 'JSON object {"input": "<password string>"}'
+    output_spec: '"true" or "false"'
+    constraints: "All 5 rules must pass simultaneously"
+    research_focus: "Input validation, security policy"
+    security_relevance: high
+    signature_python: "def is_valid_password(password: str) -> bool:"
+    signature_java: "public static boolean isValidPassword(String password)"
+    signature_cpp: "bool isValidPassword(const string& pw)"
+    signature_javascript: "function isValidPassword(password)"
+    starter_template_python: |
+      def is_valid_password(password: str) -> bool:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static boolean isValidPassword(String password) {
+              // Write your solution here
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <cctype>
+      using namespace std;
+
+      bool isValidPassword(const string& pw) {
+          // Write your solution here
+          return false;
+      }
+    starter_template_javascript: |
+      function isValidPassword(password) {
+          // Write your solution here
+      }
+      module.exports = { isValidPassword };
+    test_cases:
+      - input: '{"input":"Abcdef1!"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"abcdef1!"}'
+        expected: "false"
+        case_type: no_uppercase
+      - input: '{"input":"ABCDEF1!"}'
+        expected: "false"
+        case_type: no_lowercase
+      - input: '{"input":"Abcdefgh!"}'
+        expected: "false"
+        case_type: no_digit
+      - input: '{"input":"Abcdef12"}'
+        expected: "false"
+        case_type: no_special
+      - input: '{"input":"Ab1!"}'
+        expected: "false"
+        case_type: too_short
+      - input: '{"input":"Correct#9xy"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"P@ssw0rd"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"12345678"}'
+        expected: "false"
+        case_type: only_digits
+      - input: '{"input":"Aa1!Aa1!"}'
+        expected: "true"
+        case_type: all_rules_twice
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P013
+    title: Integer Range Validator
+    description: |
+      Given a string in the format "value|min|max" (pipe-separated integers),
+      determine whether value is within the inclusive range [min, max].
+      Return "VALID" if min <= value <= max, otherwise "INVALID".
+      Return "INVALID" if the input is malformed (non-integer, wrong number of parts).
+    category: Input Validation
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_valid_range
+    input_spec: 'JSON object {"input": "value|min|max"}'
+    output_spec: '"VALID" or "INVALID"'
+    constraints: "All three parts must be parseable as integers"
+    research_focus: "Boundary validation, numeric parsing"
+    security_relevance: medium
+    signature_python: "def is_valid_range(s: str) -> str:"
+    signature_java: "public static String isValidRange(String s)"
+    signature_cpp: "string isValidRange(const string& s)"
+    signature_javascript: "function isValidRange(s)"
+    starter_template_python: |
+      def is_valid_range(s: str) -> str:
+          # s is "value|min|max"
+          # return "VALID" or "INVALID"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String isValidRange(String s) {
+              // s is "value|min|max"
+              return "INVALID";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string isValidRange(const string& s) {
+          // s is "value|min|max"
+          return "INVALID";
+      }
+    starter_template_javascript: |
+      function isValidRange(s) {
+          // s is "value|min|max"
+      }
+      module.exports = { isValidRange };
+    test_cases:
+      - input: '{"input":"5|1|10"}'
+        expected: "VALID"
+        case_type: normal
+      - input: '{"input":"0|1|10"}'
+        expected: "INVALID"
+        case_type: below_min
+      - input: '{"input":"10|1|10"}'
+        expected: "VALID"
+        case_type: boundary_max
+      - input: '{"input":"1|1|10"}'
+        expected: "VALID"
+        case_type: boundary_min
+      - input: '{"input":"-5|-10|0"}'
+        expected: "VALID"
+        case_type: negative_range
+      - input: '{"input":"11|1|10"}'
+        expected: "INVALID"
+        case_type: above_max
+      - input: '{"input":"5|5|5"}'
+        expected: "VALID"
+        case_type: single_value_range
+      - input: '{"input":"abc|1|10"}'
+        expected: "INVALID"
+        case_type: non_integer
+      - input: '{"input":"5|10|1"}'
+        expected: "INVALID"
+        case_type: inverted_range
+      - input: '{"input":"100|0|99"}'
+        expected: "INVALID"
+        case_type: out_of_range
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P014
+    title: IPv4 Validator
+    description: |
+      Given a string, determine whether it is a valid IPv4 address.
+      Rules:
+        - Exactly 4 octets separated by dots
+        - Each octet is an integer in [0, 255]
+        - No leading zeros (e.g. "01" is invalid; "0" is valid)
+        - No extra characters
+      Return true if valid, false otherwise.
+    category: Input Validation
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_valid_ipv4
+    input_spec: 'JSON object {"input": "<ip string>"}'
+    output_spec: '"true" or "false"'
+    constraints: "No leading zeros; octets must be 0-255"
+    research_focus: "Input validation, numeric parsing"
+    security_relevance: medium
+    signature_python: "def is_valid_ipv4(ip: str) -> bool:"
+    signature_java: "public static boolean isValidIPv4(String ip)"
+    signature_cpp: "bool isValidIPv4(const string& ip)"
+    signature_javascript: "function isValidIPv4(ip)"
+    starter_template_python: |
+      def is_valid_ipv4(ip: str) -> bool:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static boolean isValidIPv4(String ip) {
+              // Write your solution here
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <sstream>
+      using namespace std;
+
+      bool isValidIPv4(const string& ip) {
+          // Write your solution here
+          return false;
+      }
+    starter_template_javascript: |
+      function isValidIPv4(ip) {
+          // Write your solution here
+      }
+      module.exports = { isValidIPv4 };
+    test_cases:
+      - input: '{"input":"192.168.1.1"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"0.0.0.0"}'
+        expected: "true"
+        case_type: all_zeros
+      - input: '{"input":"255.255.255.255"}'
+        expected: "true"
+        case_type: all_max
+      - input: '{"input":"256.0.0.1"}'
+        expected: "false"
+        case_type: octet_too_large
+      - input: '{"input":"192.168.1"}'
+        expected: "false"
+        case_type: too_few_parts
+      - input: '{"input":"192.168.1.1.1"}'
+        expected: "false"
+        case_type: too_many_parts
+      - input: '{"input":"01.0.0.1"}'
+        expected: "false"
+        case_type: leading_zero
+      - input: '{"input":"192.168.1.abc"}'
+        expected: "false"
+        case_type: non_numeric
+      - input: '{"input":""}'
+        expected: "false"
+        case_type: empty
+      - input: '{"input":"127.0.0.1"}'
+        expected: "true"
+        case_type: loopback
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P015
+    title: Username Validator
+    description: |
+      Given a username string, determine whether it is valid.
+      Rules:
+        - Length: 3 to 20 characters (inclusive)
+        - Must start with a letter (a-z or A-Z)
+        - Allowed characters: letters, digits, underscore (_), hyphen (-)
+        - No spaces or other special characters
+      Return true if valid, false otherwise.
+    category: Input Validation
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_valid_username
+    input_spec: 'JSON object {"input": "<username string>"}'
+    output_spec: '"true" or "false"'
+    constraints: "Must start with letter; 3-20 chars; only [a-zA-Z0-9_-]"
+    research_focus: "Input validation, regex"
+    security_relevance: medium
+    signature_python: "def is_valid_username(username: str) -> bool:"
+    signature_java: "public static boolean isValidUsername(String username)"
+    signature_cpp: "bool isValidUsername(const string& s)"
+    signature_javascript: "function isValidUsername(username)"
+    starter_template_python: |
+      def is_valid_username(username: str) -> bool:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static boolean isValidUsername(String username) {
+              // Write your solution here
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <cctype>
+      using namespace std;
+
+      bool isValidUsername(const string& s) {
+          // Write your solution here
+          return false;
+      }
+    starter_template_javascript: |
+      function isValidUsername(username) {
+          // Write your solution here
+      }
+      module.exports = { isValidUsername };
+    test_cases:
+      - input: '{"input":"alice"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"bob_99"}'
+        expected: "true"
+        case_type: with_underscore
+      - input: '{"input":"ab"}'
+        expected: "false"
+        case_type: too_short
+      - input: '{"input":"aaaaaaaaaaaaaaaaaaaaa"}'
+        expected: "false"
+        case_type: too_long
+      - input: '{"input":"_underscore"}'
+        expected: "false"
+        case_type: starts_with_underscore
+      - input: '{"input":"123user"}'
+        expected: "false"
+        case_type: starts_with_digit
+      - input: '{"input":"valid-name"}'
+        expected: "true"
+        case_type: with_hyphen
+      - input: '{"input":"has space"}'
+        expected: "false"
+        case_type: contains_space
+      - input: '{"input":"Alice123"}'
+        expected: "true"
+        case_type: mixed_case
+      - input: '{"input":"a!b"}'
+        expected: "false"
+        case_type: invalid_char
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P016
+    title: HTML Text Escaper
+    description: |
+      Given a plain text string, escape it for safe inclusion in HTML.
+      Apply the following substitutions in this exact order:
+        1. & -> &amp;
+        2. < -> &lt;
+        3. > -> &gt;
+        4. " -> &quot;
+        5. ' -> &#39;
+      Return the escaped string.
+    category: String Sanitization
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: escape_html
+    input_spec: 'JSON object {"input": "<raw text>"}'
+    output_spec: "Escaped HTML-safe string"
+    constraints: "Process & first to avoid double-escaping"
+    research_focus: "Output escaping, XSS prevention"
+    security_relevance: high
+    signature_python: "def escape_html(s: str) -> str:"
+    signature_java: "public static String escapeHtml(String s)"
+    signature_cpp: "string escapeHtml(const string& s)"
+    signature_javascript: "function escapeHtml(s)"
+    starter_template_python: |
+      def escape_html(s: str) -> str:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String escapeHtml(String s) {
+              // Write your solution here
+              return s;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string escapeHtml(const string& s) {
+          // Write your solution here
+          return s;
+      }
+    starter_template_javascript: |
+      function escapeHtml(s) {
+          // Write your solution here
+      }
+      module.exports = { escapeHtml };
+    test_cases:
+      - input: '{"input":"hello"}'
+        expected: "hello"
+        case_type: no_special
+      - input: '{"input":"<script>"}'
+        expected: "&lt;script&gt;"
+        case_type: angle_brackets
+      - input: '{"input":"Tom & Jerry"}'
+        expected: "Tom &amp; Jerry"
+        case_type: ampersand
+      - input: '{"input":"\"quoted\""}'
+        expected: "&quot;quoted&quot;"
+        case_type: double_quote
+      - input: "{\"input\":\"it's\"}"
+        expected: "it&#39;s"
+        case_type: single_quote
+      - input: '{"input":"<b>bold & bright</b>"}'
+        expected: "&lt;b&gt;bold &amp; bright&lt;/b&gt;"
+        case_type: mixed
+      - input: '{"input":""}'
+        expected: ""
+        case_type: empty
+      - input: '{"input":"no special chars"}'
+        expected: "no special chars"
+        case_type: plain_text
+      - input: '{"input":"< > & \" ''"}'
+        expected: "&lt; &gt; &amp; &quot; &#39;"
+        case_type: all_five
+      - input: '{"input":"&amp; already"}'
+        expected: "&amp;amp; already"
+        case_type: double_escape
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P017
+    title: CSV Cell Escaper
+    description: |
+      Given a string representing a CSV cell value, escape it per RFC 4180.
+      Rules:
+        - If the value contains a comma, double-quote, newline (LF), or carriage return (CR):
+            Wrap the entire value in double-quotes.
+            Escape any internal double-quote by doubling it ("" instead of ").
+        - Otherwise: return the value unchanged.
+      Tab characters are NOT special in CSV and do NOT require escaping.
+    category: String Sanitization
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: escape_csv_cell
+    input_spec: 'JSON object {"input": "<cell value>"}'
+    output_spec: "RFC 4180 escaped CSV cell string"
+    constraints: "RFC 4180 rules; tab is not special"
+    research_focus: "Output encoding, CSV safety"
+    security_relevance: medium
+    signature_python: "def escape_csv_cell(s: str) -> str:"
+    signature_java: "public static String escapeCsvCell(String s)"
+    signature_cpp: "string escapeCsvCell(const string& s)"
+    signature_javascript: "function escapeCsvCell(s)"
+    starter_template_python: |
+      def escape_csv_cell(s: str) -> str:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String escapeCsvCell(String s) {
+              // Write your solution here
+              return s;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string escapeCsvCell(const string& s) {
+          // Write your solution here
+          return s;
+      }
+    starter_template_javascript: |
+      function escapeCsvCell(s) {
+          // Write your solution here
+      }
+      module.exports = { escapeCsvCell };
+    test_cases:
+      - input: '{"input":"hello"}'
+        expected: "hello"
+        case_type: no_special
+      - input: '{"input":"hello, world"}'
+        expected: "\"hello, world\""
+        case_type: contains_comma
+      - input: '{"input":"say \"hi\""}'
+        expected: "\"say \"\"hi\"\"\""
+        case_type: contains_quote
+      - input: "{\"input\":\"line1\\nline2\"}"
+        expected: "\"line1\nline2\""
+        case_type: contains_newline
+      - input: '{"input":""}'
+        expected: ""
+        case_type: empty
+      - input: '{"input":"no special"}'
+        expected: "no special"
+        case_type: plain
+      - input: '{"input":"a,b,\"c\""}'
+        expected: "\"a,b,\"\"c\"\"\""
+        case_type: comma_and_quote
+      - input: "{\"input\":\"tab\\there\"}"
+        expected: "tab\there"
+        case_type: tab_not_special
+      - input: '{"input":"just\"quote"}'
+        expected: "\"just\"\"quote\""
+        case_type: only_quote
+      - input: '{"input":"comma,only"}'
+        expected: "\"comma,only\""
+        case_type: only_comma
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P018
+    title: JSON String Escaper
+    description: |
+      Given a raw string, escape it so it can be safely embedded as the VALUE
+      inside a JSON string (without the surrounding quotes).
+      Apply these substitutions:
+        " -> \"     \ -> \\     / -> \/
+        backspace (U+0008) -> \b     form feed (U+000C) -> \f
+        newline (U+000A) -> \n       carriage return (U+000D) -> \r
+        tab (U+0009) -> \t
+        other control chars (U+0000-U+001F) -> \uXXXX  (lowercase hex)
+      All other characters are returned as-is.
+      Return the escaped content WITHOUT surrounding quotes.
+    category: String Sanitization
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: escape_json_string
+    input_spec: 'JSON object {"input": "<raw string>"}'
+    output_spec: "JSON-safe escaped string content (no surrounding quotes)"
+    constraints: "Exact substitution table as specified"
+    research_focus: "Output encoding, JSON injection prevention"
+    security_relevance: high
+    signature_python: "def escape_json_string(s: str) -> str:"
+    signature_java: "public static String escapeJsonString(String s)"
+    signature_cpp: "string escapeJsonString(const string& s)"
+    signature_javascript: "function escapeJsonString(s)"
+    starter_template_python: |
+      def escape_json_string(s: str) -> str:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String escapeJsonString(String s) {
+              // Write your solution here
+              return s;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string escapeJsonString(const string& s) {
+          // Write your solution here
+          return s;
+      }
+    starter_template_javascript: |
+      function escapeJsonString(s) {
+          // Write your solution here
+      }
+      module.exports = { escapeJsonString };
+    test_cases:
+      - input: '{"input":"hello"}'
+        expected: "hello"
+        case_type: no_special
+      - input: '{"input":"say \"hi\""}'
+        expected: "say \\\"hi\\\""
+        case_type: double_quote
+      - input: "{\"input\":\"line1\\nline2\"}"
+        expected: "line1\\nline2"
+        case_type: newline
+      - input: "{\"input\":\"tab\\there\"}"
+        expected: "tab\\there"
+        case_type: tab
+      - input: '{"input":"back\\\\slash"}'
+        expected: "back\\\\\\\\slash"
+        case_type: backslash
+      - input: '{"input":""}'
+        expected: ""
+        case_type: empty
+      - input: "{\"input\":\"carriage\\rreturn\"}"
+        expected: "carriage\\rreturn"
+        case_type: carriage_return
+      - input: '{"input":"/path/to/file"}'
+        expected: "\\/path\\/to\\/file"
+        case_type: forward_slash
+      - input: "{\"input\":\"\\b\\f\"}"
+        expected: "\\b\\f"
+        case_type: backspace_formfeed
+      - input: '{"input":"normal text 123"}'
+        expected: "normal text 123"
+        case_type: plain
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P019
+    title: URL Query Component Encoder
+    description: |
+      Given a string, percent-encode it for use as a URL query parameter value.
+      Encoding rules (RFC 3986 unreserved characters are NOT encoded):
+        - Unreserved characters [A-Za-z0-9 - _ . ~] are kept as-is
+        - All other characters are encoded as %XX where XX is the uppercase
+          hexadecimal representation of each UTF-8 byte
+        - Space is encoded as %20 (NOT as +)
+      Return the encoded string.
+    category: String Sanitization
+    difficulty: Medium
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: encode_url_component
+    input_spec: 'JSON object {"input": "<raw string>"}'
+    output_spec: "Percent-encoded string"
+    constraints: "RFC 3986 unreserved set; space -> %20; uppercase hex"
+    research_focus: "Output encoding, URL injection prevention"
+    security_relevance: high
+    signature_python: "def encode_url_component(s: str) -> str:"
+    signature_java: "public static String encodeUrlComponent(String s)"
+    signature_cpp: "string encodeUrlComponent(const string& s)"
+    signature_javascript: "function encodeUrlComponent(s)"
+    starter_template_python: |
+      def encode_url_component(s: str) -> str:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String encodeUrlComponent(String s) {
+              // Write your solution here
+              return s;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string encodeUrlComponent(const string& s) {
+          // Write your solution here
+          return s;
+      }
+    starter_template_javascript: |
+      function encodeUrlComponent(s) {
+          // Write your solution here
+      }
+      module.exports = { encodeUrlComponent };
+    test_cases:
+      - input: '{"input":"hello"}'
+        expected: "hello"
+        case_type: unreserved
+      - input: '{"input":"hello world"}'
+        expected: "hello%20world"
+        case_type: space
+      - input: '{"input":"a=1&b=2"}'
+        expected: "a%3D1%26b%3D2"
+        case_type: equals_ampersand
+      - input: '{"input":""}'
+        expected: ""
+        case_type: empty
+      - input: '{"input":"foo/bar"}'
+        expected: "foo%2Fbar"
+        case_type: slash
+      - input: '{"input":"100%"}'
+        expected: "100%25"
+        case_type: percent_sign
+      - input: '{"input":"name@domain"}'
+        expected: "name%40domain"
+        case_type: at_sign
+      - input: '{"input":"key+value"}'
+        expected: "key%2Bvalue"
+        case_type: plus_sign
+      - input: '{"input":"safe-_.~chars"}'
+        expected: "safe-_.~chars"
+        case_type: all_unreserved
+      - input: '{"input":"caf\u00e9"}'
+        expected: "caf%C3%A9"
+        case_type: utf8_multibyte
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P020
+    title: Template Placeholder Sanitizer
+    description: |
+      Given a template string containing {{key}} placeholders, remove any
+      placeholder whose key contains characters other than [a-zA-Z0-9_].
+      Safe placeholders (keys matching ^[a-zA-Z0-9_]+$) are kept unchanged.
+      Unsafe placeholders are removed entirely (replaced with empty string).
+      An empty key {{}} is also considered unsafe and must be removed.
+      Return the sanitized string.
+    category: String Sanitization
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: sanitize_template
+    input_spec: 'JSON object {"input": "<template string>"}'
+    output_spec: "Template with unsafe placeholders removed"
+    constraints: "Safe key regex: ^[a-zA-Z0-9_]+$; empty key is unsafe"
+    research_focus: "Template injection prevention, sanitization"
+    security_relevance: high
+    signature_python: "def sanitize_template(s: str) -> str:"
+    signature_java: "public static String sanitizeTemplate(String s)"
+    signature_cpp: "string sanitizeTemplate(const string& s)"
+    signature_javascript: "function sanitizeTemplate(s)"
+    starter_template_python: |
+      def sanitize_template(s: str) -> str:
+          # Write your solution here
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String sanitizeTemplate(String s) {
+              // Write your solution here
+              return s;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <regex>
+      using namespace std;
+
+      string sanitizeTemplate(const string& s) {
+          // Write your solution here
+          return s;
+      }
+    starter_template_javascript: |
+      function sanitizeTemplate(s) {
+          // Write your solution here
+      }
+      module.exports = { sanitizeTemplate };
+    test_cases:
+      - input: '{"input":"Hello {{name}}!"}'
+        expected: "Hello {{name}}!"
+        case_type: safe_placeholder
+      - input: '{"input":"{{../secret}}"}'
+        expected: ""
+        case_type: path_traversal
+      - input: '{"input":"{{name}} {{age}}"}'
+        expected: "{{name}} {{age}}"
+        case_type: two_safe
+      - input: '{"input":"{{cmd;drop}}"}'
+        expected: ""
+        case_type: semicolon
+      - input: '{"input":"No placeholders"}'
+        expected: "No placeholders"
+        case_type: no_placeholders
+      - input: '{"input":"{{a_b_1}} safe"}'
+        expected: "{{a_b_1}} safe"
+        case_type: underscore_digits
+      - input: '{"input":"{{bad key}} and {{good}}"}'
+        expected: " and {{good}}"
+        case_type: mixed_safe_unsafe
+      - input: '{"input":"{{}}"}'
+        expected: ""
+        case_type: empty_key
+      - input: '{"input":"{{UPPER_CASE}}"}'
+        expected: "{{UPPER_CASE}}"
+        case_type: uppercase_key
+      - input: '{"input":"{{a}} {{b.c}} {{d}}"}'
+        expected: "{{a}}  {{d}}"
+        case_type: dot_in_key
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P021
+    title: Safe Path Normalizer
+    description: |
+      Normalize a relative file path by resolving "." and ".." segments.
+      Rules:
+        - Split on "/" (forward slash only; backslash is NOT a separator and must return "")
+        - Skip empty segments and "." segments
+        - For ".." segments: pop the last resolved segment; if nothing to pop, return "" (traversal blocked)
+        - If the input is empty or whitespace-only, return ""
+        - Return the joined resolved segments separated by "/"
+        - No leading or trailing slash in the result
+      Security: Any path that attempts to escape the logical root returns "".
+    category: Path Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: safe_path_normalize
+    input_spec: 'JSON object {"input": "<path string>"}'
+    output_spec: "Normalized path string, or empty string if traversal detected"
+    constraints: "Forward slash only; backslash input returns empty string"
+    research_focus: "Path traversal prevention, string parsing"
+    security_relevance: high
+    signature_python: "def safe_path_normalize(path: str) -> str:"
+    signature_java: "public static String safePathNormalize(String path)"
+    signature_cpp: "string safePathNormalize(const string& path)"
+    signature_javascript: "function safePathNormalize(path)"
+    starter_template_python: |
+      def safe_path_normalize(path: str) -> str:
+          # Resolve "." and ".." segments; return "" if traversal detected or backslash present
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String safePathNormalize(String path) {
+              // Resolve "." and ".." segments; return "" if traversal detected or backslash present
+              return "";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <vector>
+      #include <sstream>
+      using namespace std;
+
+      string safePathNormalize(const string& path) {
+          // Resolve "." and ".." segments; return "" if traversal detected or backslash present
+          return "";
+      }
+    starter_template_javascript: |
+      function safePathNormalize(path) {
+          // Resolve "." and ".." segments; return "" if traversal detected or backslash present
+      }
+      module.exports = { safePathNormalize };
+    test_cases:
+      - input: '{"input":"docs/readme.txt"}'
+        expected: "docs/readme.txt"
+        case_type: normal
+      - input: '{"input":"docs/../readme.txt"}'
+        expected: "readme.txt"
+        case_type: single_dotdot
+      - input: '{"input":"a/b/c/../../d"}'
+        expected: "a/d"
+        case_type: multiple_dotdot
+      - input: '{"input":"../secret"}'
+        expected: ""
+        case_type: traversal_blocked
+      - input: '{"input":"../../etc/passwd"}'
+        expected: ""
+        case_type: deep_traversal
+      - input: '{"input":""}'
+        expected: ""
+        case_type: empty
+      - input: '{"input":"a//b///c"}'
+        expected: "a/b/c"
+        case_type: consecutive_slashes
+      - input: '{"input":"./current/./file.txt"}'
+        expected: "current/file.txt"
+        case_type: dot_segments
+      - input: '{"input":"a/b/c/../../../"}'
+        expected: ""
+        case_type: resolves_to_root
+      - input: '{"input":"path\\\\to\\\\file"}'
+        expected: ""
+        case_type: backslash_blocked
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P022
+    title: Path Extension Validator
+    description: |
+      Determine whether a filename or path has an allowed extension.
+      Allowed extensions (case-insensitive): .jpg .jpeg .png .gif .pdf .txt .csv
+      Rules:
+        - Extract the filename as the last segment after "/" or "\"
+        - Extension = everything from the LAST dot onwards (including the dot)
+        - Files with no dot, or whose only dot is the leading dot (e.g. ".gitignore"), return false
+        - Multiple extensions: only the last one counts (e.g. "file.tar.gz" → .gz → false)
+        - Comparison is case-insensitive
+      Return true if allowed, false otherwise.
+    category: Path Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_allowed_extension
+    input_spec: 'JSON object {"input": "<filename or path>"}'
+    output_spec: '"true" or "false"'
+    constraints: "Allowed set: .jpg .jpeg .png .gif .pdf .txt .csv"
+    research_focus: "File type validation, allowlist enforcement"
+    security_relevance: high
+    signature_python: "def is_allowed_extension(path: str) -> bool:"
+    signature_java: "public static boolean isAllowedExtension(String path)"
+    signature_cpp: "bool isAllowedExtension(const string& path)"
+    signature_javascript: "function isAllowedExtension(path)"
+    starter_template_python: |
+      def is_allowed_extension(path: str) -> bool:
+          # Return True if the file's extension is in the allowed set
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static boolean isAllowedExtension(String path) {
+              // Return true if the file's extension is in the allowed set
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <set>
+      using namespace std;
+
+      bool isAllowedExtension(const string& path) {
+          // Return true if the file's extension is in the allowed set
+          return false;
+      }
+    starter_template_javascript: |
+      function isAllowedExtension(path) {
+          // Return true if the file's extension is in the allowed set
+      }
+      module.exports = { isAllowedExtension };
+    test_cases:
+      - input: '{"input":"image.jpg"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"document.PDF"}'
+        expected: "true"
+        case_type: uppercase
+      - input: '{"input":"archive.zip"}'
+        expected: "false"
+        case_type: disallowed
+      - input: '{"input":"report.csv"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"no_extension"}'
+        expected: "false"
+        case_type: no_extension
+      - input: '{"input":".gitignore"}'
+        expected: "false"
+        case_type: leading_dot_only
+      - input: '{"input":"file.tar.gz"}'
+        expected: "false"
+        case_type: double_extension
+      - input: '{"input":"photo.JPEG"}'
+        expected: "true"
+        case_type: uppercase_allowed
+      - input: '{"input":"path/to/image.png"}'
+        expected: "true"
+        case_type: with_path
+      - input: '{"input":"script.exe"}'
+        expected: "false"
+        case_type: dangerous_type
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P023
+    title: Filename Sanitizer
+    description: |
+      Convert an unsafe filename into a safe representation using these exact rules:
+        1. Take only the first 200 characters of the input
+        2. Replace every character NOT in [a-zA-Z0-9._-] with an underscore "_"
+        3. Collapse consecutive underscores into a single underscore
+        4. Strip leading and trailing underscores
+        5. If the result is empty after all steps, return "_"
+      The dot "." and hyphen "-" characters are ALLOWED and preserved.
+    category: Path Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: sanitize_filename
+    input_spec: 'JSON object {"input": "<raw filename>"}'
+    output_spec: "Sanitized filename string"
+    constraints: "Only [a-zA-Z0-9._-] allowed; others replaced with _"
+    research_focus: "Input sanitization, filename safety"
+    security_relevance: high
+    signature_python: "def sanitize_filename(name: str) -> str:"
+    signature_java: "public static String sanitizeFilename(String name)"
+    signature_cpp: "string sanitizeFilename(const string& name)"
+    signature_javascript: "function sanitizeFilename(name)"
+    starter_template_python: |
+      def sanitize_filename(name: str) -> str:
+          # Replace disallowed chars, collapse underscores, strip leading/trailing underscores
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String sanitizeFilename(String name) {
+              // Replace disallowed chars, collapse underscores, strip leading/trailing underscores
+              return "_";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <regex>
+      using namespace std;
+
+      string sanitizeFilename(const string& name) {
+          // Replace disallowed chars, collapse underscores, strip leading/trailing underscores
+          return "_";
+      }
+    starter_template_javascript: |
+      function sanitizeFilename(name) {
+          // Replace disallowed chars, collapse underscores, strip leading/trailing underscores
+      }
+      module.exports = { sanitizeFilename };
+    test_cases:
+      - input: '{"input":"report.pdf"}'
+        expected: "report.pdf"
+        case_type: normal
+      - input: '{"input":"my file.txt"}'
+        expected: "my_file.txt"
+        case_type: space
+      - input: '{"input":"../../etc/passwd"}'
+        expected: ".._.._etc_passwd"
+        case_type: traversal_attempt
+      - input: '{"input":"hello<world>.txt"}'
+        expected: "hello_world_.txt"
+        case_type: special_chars
+      - input: '{"input":""}'
+        expected: "_"
+        case_type: empty_fallback
+      - input: '{"input":"file name with spaces"}'
+        expected: "file_name_with_spaces"
+        case_type: multiple_spaces
+      - input: '{"input":"valid-name_123.csv"}'
+        expected: "valid-name_123.csv"
+        case_type: already_safe
+      - input: '{"input":"file?.txt"}'
+        expected: "file_.txt"
+        case_type: question_mark
+      - input: '{"input":"..hidden"}'
+        expected: "..hidden"
+        case_type: leading_dots_allowed
+      - input: '{"input":"a/b\\c:d*e"}'
+        expected: "a_b_c_d_e"
+        case_type: mixed_unsafe
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P024
+    title: Archive Entry Path Checker
+    description: |
+      Determine whether an archive entry path is safe (does not escape the extraction root).
+      Rules:
+        - Empty path is "safe"
+        - Paths starting with "/" are "unsafe" (absolute path)
+        - Paths containing backslash "\" are "unsafe"
+        - Resolve "." (skip) and ".." (go up one level) segments
+        - If any ".." causes the depth to go below 0, return "unsafe"
+        - Otherwise return "safe"
+      Forward slash "/" is the only path separator recognized.
+    category: Path Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: check_archive_entry
+    input_spec: 'JSON object {"input": "<archive entry path>"}'
+    output_spec: '"safe" or "unsafe"'
+    constraints: "Traversal check against logical root; backslash is unsafe"
+    research_focus: "Zip slip prevention, path traversal detection"
+    security_relevance: high
+    signature_python: "def check_archive_entry(path: str) -> str:"
+    signature_java: "public static String checkArchiveEntry(String path)"
+    signature_cpp: "string checkArchiveEntry(const string& path)"
+    signature_javascript: "function checkArchiveEntry(path)"
+    starter_template_python: |
+      def check_archive_entry(path: str) -> str:
+          # Return "safe" or "unsafe"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String checkArchiveEntry(String path) {
+              // Return "safe" or "unsafe"
+              return "unsafe";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <vector>
+      using namespace std;
+
+      string checkArchiveEntry(const string& path) {
+          // Return "safe" or "unsafe"
+          return "unsafe";
+      }
+    starter_template_javascript: |
+      function checkArchiveEntry(path) {
+          // Return "safe" or "unsafe"
+      }
+      module.exports = { checkArchiveEntry };
+    test_cases:
+      - input: '{"input":"docs/readme.txt"}'
+        expected: "safe"
+        case_type: normal
+      - input: '{"input":"../etc/passwd"}'
+        expected: "unsafe"
+        case_type: traversal
+      - input: '{"input":"a/b/../../c"}'
+        expected: "safe"
+        case_type: resolves_within_root
+      - input: '{"input":"a/b/../../../etc"}'
+        expected: "unsafe"
+        case_type: deep_escape
+      - input: '{"input":"/absolute/path"}'
+        expected: "unsafe"
+        case_type: absolute_path
+      - input: '{"input":""}'
+        expected: "safe"
+        case_type: empty
+      - input: '{"input":"normal/file.txt"}'
+        expected: "safe"
+        case_type: safe_normal
+      - input: '{"input":"path\\\\file.txt"}'
+        expected: "unsafe"
+        case_type: backslash
+      - input: '{"input":"a/./b/../c"}'
+        expected: "safe"
+        case_type: dot_and_dotdot
+      - input: '{"input":"../../root"}'
+        expected: "unsafe"
+        case_type: double_traversal
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P025
+    title: File Type Allowlist
+    description: |
+      Given a file extension string (with or without a leading dot), determine
+      whether it belongs to the predefined safe allowlist.
+      Allowed types: jpg, jpeg, png, gif, bmp, pdf, txt, csv, json, xml
+      Rules:
+        - Strip leading dot if present
+        - Comparison is case-insensitive
+        - Empty string returns false
+      Return true if in the allowlist, false otherwise.
+    category: Path Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_allowed_filetype
+    input_spec: 'JSON object {"input": "<extension>"}'
+    output_spec: '"true" or "false"'
+    constraints: "Allowed: jpg jpeg png gif bmp pdf txt csv json xml"
+    research_focus: "File type allowlisting"
+    security_relevance: high
+    signature_python: "def is_allowed_filetype(ext: str) -> bool:"
+    signature_java: "public static boolean isAllowedFiletype(String ext)"
+    signature_cpp: "bool isAllowedFiletype(const string& ext)"
+    signature_javascript: "function isAllowedFiletype(ext)"
+    starter_template_python: |
+      def is_allowed_filetype(ext: str) -> bool:
+          # Return True if ext is in the allowed set (case-insensitive, strip leading dot)
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static boolean isAllowedFiletype(String ext) {
+              // Return true if ext is in the allowed set (case-insensitive, strip leading dot)
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <set>
+      #include <algorithm>
+      using namespace std;
+
+      bool isAllowedFiletype(const string& ext) {
+          // Return true if ext is in the allowed set (case-insensitive, strip leading dot)
+          return false;
+      }
+    starter_template_javascript: |
+      function isAllowedFiletype(ext) {
+          // Return true if ext is in the allowed set (case-insensitive, strip leading dot)
+      }
+      module.exports = { isAllowedFiletype };
+    test_cases:
+      - input: '{"input":"jpg"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":".PNG"}'
+        expected: "true"
+        case_type: leading_dot_uppercase
+      - input: '{"input":"exe"}'
+        expected: "false"
+        case_type: disallowed
+      - input: '{"input":".php"}'
+        expected: "false"
+        case_type: disallowed_with_dot
+      - input: '{"input":"json"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"CSV"}'
+        expected: "true"
+        case_type: uppercase
+      - input: '{"input":"js"}'
+        expected: "false"
+        case_type: disallowed
+      - input: '{"input":"xml"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":""}'
+        expected: "false"
+        case_type: empty
+      - input: '{"input":"bmp"}'
+        expected: "true"
+        case_type: normal
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P026
+    title: SQL Identifier Validator
+    description: |
+      Validate a string as a SQL identifier using these exact rules:
+        - Length must be 1 to 64 characters (inclusive)
+        - Must match the pattern: starts with a letter [a-zA-Z] or underscore [_]
+        - Remaining characters: only [a-zA-Z0-9_] allowed
+        - No spaces, hyphens, quotes, or other special characters
+      Return true if valid, false otherwise.
+      Note: This is purely structural — no reserved word checking.
+    category: SQL Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_valid_sql_identifier
+    input_spec: 'JSON object {"input": "<identifier string>"}'
+    output_spec: '"true" or "false"'
+    constraints: "^[a-zA-Z_][a-zA-Z0-9_]{0,63}$"
+    research_focus: "SQL injection prevention, identifier validation"
+    security_relevance: high
+    signature_python: "def is_valid_sql_identifier(name: str) -> bool:"
+    signature_java: "public static boolean isValidSqlIdentifier(String name)"
+    signature_cpp: "bool isValidSqlIdentifier(const string& name)"
+    signature_javascript: "function isValidSqlIdentifier(name)"
+    starter_template_python: |
+      def is_valid_sql_identifier(name: str) -> bool:
+          # Return True if name matches ^[a-zA-Z_][a-zA-Z0-9_]*$ and length <= 64
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static boolean isValidSqlIdentifier(String name) {
+              // Return true if name matches ^[a-zA-Z_][a-zA-Z0-9_]*$ and length <= 64
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <regex>
+      using namespace std;
+
+      bool isValidSqlIdentifier(const string& name) {
+          // Return true if name matches ^[a-zA-Z_][a-zA-Z0-9_]*$ and length <= 64
+          return false;
+      }
+    starter_template_javascript: |
+      function isValidSqlIdentifier(name) {
+          // Return true if name matches ^[a-zA-Z_][a-zA-Z0-9_]*$ and length <= 64
+      }
+      module.exports = { isValidSqlIdentifier };
+    test_cases:
+      - input: '{"input":"users"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"order_items"}'
+        expected: "true"
+        case_type: underscore
+      - input: '{"input":"2fast"}'
+        expected: "false"
+        case_type: starts_with_digit
+      - input: '{"input":"drop table"}'
+        expected: "false"
+        case_type: contains_space
+      - input: '{"input":"valid_123"}'
+        expected: "true"
+        case_type: alphanumeric
+      - input: '{"input":""}'
+        expected: "false"
+        case_type: empty
+      - input: '{"input":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}'
+        expected: "true"
+        case_type: exactly_64_chars
+      - input: '{"input":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}'
+        expected: "false"
+        case_type: too_long_65
+      - input: '{"input":"has-hyphen"}'
+        expected: "false"
+        case_type: hyphen_disallowed
+      - input: '{"input":"_private"}'
+        expected: "true"
+        case_type: leading_underscore
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P027
+    title: SQL String Literal Escaper
+    description: |
+      Escape a string for safe embedding inside a SQL single-quoted string literal.
+      Exact substitution rules (in this order):
+        1. Replace every backslash "\" with two backslashes "\\"
+        2. Replace every single-quote "'" with two single-quotes "''"
+      No other substitutions are made.
+      Return the escaped content WITHOUT surrounding quotes.
+    category: SQL Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: escape_sql_string
+    input_spec: 'JSON object {"input": "<raw string>"}'
+    output_spec: "Escaped string (no surrounding quotes)"
+    constraints: "Backslash doubled first, then single-quote doubled"
+    research_focus: "SQL injection prevention, output escaping"
+    security_relevance: high
+    signature_python: "def escape_sql_string(s: str) -> str:"
+    signature_java: "public static String escapeSqlString(String s)"
+    signature_cpp: "string escapeSqlString(const string& s)"
+    signature_javascript: "function escapeSqlString(s)"
+    starter_template_python: |
+      def escape_sql_string(s: str) -> str:
+          # Replace \ with \\ then ' with ''
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String escapeSqlString(String s) {
+              // Replace \ with \\ then ' with ''
+              return s;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string escapeSqlString(const string& s) {
+          // Replace \ with \\ then ' with ''
+          return s;
+      }
+    starter_template_javascript: |
+      function escapeSqlString(s) {
+          // Replace \ with \\ then ' with ''
+      }
+      module.exports = { escapeSqlString };
+    test_cases:
+      - input: '{"input":"hello"}'
+        expected: "hello"
+        case_type: no_special
+      - input: "{\"input\":\"it's\"}"
+        expected: "it''s"
+        case_type: single_quote
+      - input: '{"input":"back\\\\slash"}'
+        expected: "back\\\\\\\\slash"
+        case_type: backslash
+      - input: "{\"input\":\"O'Brien's\"}"
+        expected: "O''Brien''s"
+        case_type: multiple_quotes
+      - input: '{"input":""}'
+        expected: ""
+        case_type: empty
+      - input: '{"input":"no special"}'
+        expected: "no special"
+        case_type: plain
+      - input: "{\"input\":\"' OR '1'='1\"}"
+        expected: "'' OR ''1''=''1"
+        case_type: sql_injection
+      - input: "{\"input\":\"say 'hi'\"}"
+        expected: "say ''hi''"
+        case_type: embedded_quotes
+      - input: '{"input":"line1\\nline2"}'
+        expected: "line1\\\\nline2"
+        case_type: no_newline_escape
+      - input: '{"input":"normal text 123"}'
+        expected: "normal text 123"
+        case_type: alphanumeric
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P028
+    title: Parameterized Query Builder
+    description: |
+      Build a parameterized SELECT query from a structured input string.
+      Input format: "table_name|col1=val1,col2=val2,..."
+        - table_name and all column names must be valid SQL identifiers: ^[a-zA-Z_][a-zA-Z0-9_]*$
+        - Values are NOT embedded — each becomes a "?" placeholder
+        - Conditions appear in the order given
+      Output format: "SELECT * FROM <table> WHERE <col1>=? AND <col2>=?"
+      Return "INVALID" if:
+        - Input does not contain exactly one "|"
+        - Table name fails identifier validation
+        - Any column name fails identifier validation
+        - No conditions provided (empty conditions string)
+    category: SQL Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: build_param_query
+    input_spec: 'JSON object {"input": "table|col1=val1,col2=val2"}'
+    output_spec: '"SELECT * FROM table WHERE col1=? AND col2=?" or "INVALID"'
+    constraints: "SQL identifier rules for table and column names"
+    research_focus: "Parameterized query construction, SQL injection prevention"
+    security_relevance: high
+    signature_python: "def build_param_query(s: str) -> str:"
+    signature_java: "public static String buildParamQuery(String s)"
+    signature_cpp: "string buildParamQuery(const string& s)"
+    signature_javascript: "function buildParamQuery(s)"
+    starter_template_python: |
+      def build_param_query(s: str) -> str:
+          # Parse "table|col=val,..." and return parameterized query or "INVALID"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String buildParamQuery(String s) {
+              // Parse "table|col=val,..." and return parameterized query or "INVALID"
+              return "INVALID";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <vector>
+      #include <regex>
+      using namespace std;
+
+      string buildParamQuery(const string& s) {
+          // Parse "table|col=val,..." and return parameterized query or "INVALID"
+          return "INVALID";
+      }
+    starter_template_javascript: |
+      function buildParamQuery(s) {
+          // Parse "table|col=val,..." and return parameterized query or "INVALID"
+      }
+      module.exports = { buildParamQuery };
+    test_cases:
+      - input: '{"input":"users|id=123"}'
+        expected: "SELECT * FROM users WHERE id=?"
+        case_type: single_condition
+      - input: '{"input":"orders|user_id=5,status=active"}'
+        expected: "SELECT * FROM orders WHERE user_id=? AND status=?"
+        case_type: two_conditions
+      - input: '{"input":"1bad_table|col=val"}'
+        expected: "INVALID"
+        case_type: invalid_table
+      - input: '{"input":"users|1bad_col=val"}'
+        expected: "INVALID"
+        case_type: invalid_column
+      - input: '{"input":"products|price=10"}'
+        expected: "SELECT * FROM products WHERE price=?"
+        case_type: normal
+      - input: '{"input":"users|"}'
+        expected: "INVALID"
+        case_type: empty_conditions
+      - input: '{"input":"no_pipe_here"}'
+        expected: "INVALID"
+        case_type: missing_pipe
+      - input: '{"input":"t|a=1,b=2,c=3"}'
+        expected: "SELECT * FROM t WHERE a=? AND b=? AND c=?"
+        case_type: three_conditions
+      - input: '{"input":"my_table|name=Alice"}'
+        expected: "SELECT * FROM my_table WHERE name=?"
+        case_type: normal
+      - input: '{"input":"t|col-bad=v"}'
+        expected: "INVALID"
+        case_type: hyphen_in_column
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P029
+    title: Sort Direction Validator
+    description: |
+      Accept only the two valid SQL sort directions.
+      Rules:
+        - Trim leading and trailing whitespace from the input
+        - Convert to uppercase
+        - If the result is "ASC" or "DESC", return it (canonical uppercase)
+        - Otherwise return "INVALID"
+      This prevents SQL injection via ORDER BY direction parameters.
+    category: SQL Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: validate_sort_direction
+    input_spec: 'JSON object {"input": "<sort direction>"}'
+    output_spec: '"ASC", "DESC", or "INVALID"'
+    constraints: "Only ASC and DESC (case-insensitive) are valid"
+    research_focus: "SQL injection prevention, allowlist validation"
+    security_relevance: high
+    signature_python: "def validate_sort_direction(s: str) -> str:"
+    signature_java: "public static String validateSortDirection(String s)"
+    signature_cpp: "string validateSortDirection(const string& s)"
+    signature_javascript: "function validateSortDirection(s)"
+    starter_template_python: |
+      def validate_sort_direction(s: str) -> str:
+          # Return "ASC", "DESC", or "INVALID"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String validateSortDirection(String s) {
+              // Return "ASC", "DESC", or "INVALID"
+              return "INVALID";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <algorithm>
+      using namespace std;
+
+      string validateSortDirection(const string& s) {
+          // Return "ASC", "DESC", or "INVALID"
+          return "INVALID";
+      }
+    starter_template_javascript: |
+      function validateSortDirection(s) {
+          // Return "ASC", "DESC", or "INVALID"
+      }
+      module.exports = { validateSortDirection };
+    test_cases:
+      - input: '{"input":"ASC"}'
+        expected: "ASC"
+        case_type: uppercase_asc
+      - input: '{"input":"DESC"}'
+        expected: "DESC"
+        case_type: uppercase_desc
+      - input: '{"input":"asc"}'
+        expected: "ASC"
+        case_type: lowercase
+      - input: '{"input":"desc"}'
+        expected: "DESC"
+        case_type: lowercase
+      - input: '{"input":"Asc"}'
+        expected: "ASC"
+        case_type: mixed_case
+      - input: '{"input":"ASCENDING"}'
+        expected: "INVALID"
+        case_type: invalid_word
+      - input: '{"input":""}'
+        expected: "INVALID"
+        case_type: empty
+      - input: '{"input":"1 OR 1=1"}'
+        expected: "INVALID"
+        case_type: sql_injection
+      - input: '{"input":" DESC "}'
+        expected: "DESC"
+        case_type: whitespace_trimmed
+      - input: '{"input":"asc; DROP TABLE users"}'
+        expected: "INVALID"
+        case_type: injection_attempt
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P030
+    title: Column Allowlist Checker
+    description: |
+      Determine whether a requested column name belongs to the predefined allowlist.
+      Allowed columns: id, name, email, created_at, status, age, role, score
+      Rules:
+        - Trim whitespace before comparison
+        - Comparison is case-SENSITIVE (exact match required)
+        - Input must be a single column name — no commas, pipes, or SQL keywords
+      Return true if the column is in the allowlist, false otherwise.
+    category: SQL Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_allowed_column
+    input_spec: 'JSON object {"input": "<column name>"}'
+    output_spec: '"true" or "false"'
+    constraints: "Case-sensitive exact match against allowlist"
+    research_focus: "SQL injection prevention, column allowlisting"
+    security_relevance: high
+    signature_python: "def is_allowed_column(col: str) -> bool:"
+    signature_java: "public static boolean isAllowedColumn(String col)"
+    signature_cpp: "bool isAllowedColumn(const string& col)"
+    signature_javascript: "function isAllowedColumn(col)"
+    starter_template_python: |
+      def is_allowed_column(col: str) -> bool:
+          # Return True if col (after trim) is in the allowed set (case-sensitive)
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static boolean isAllowedColumn(String col) {
+              // Return true if col (after trim) is in the allowed set (case-sensitive)
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <set>
+      using namespace std;
+
+      bool isAllowedColumn(const string& col) {
+          // Return true if col (after trim) is in the allowed set (case-sensitive)
+          return false;
+      }
+    starter_template_javascript: |
+      function isAllowedColumn(col) {
+          // Return true if col (after trim) is in the allowed set (case-sensitive)
+      }
+      module.exports = { isAllowedColumn };
+    test_cases:
+      - input: '{"input":"id"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"name"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"password"}'
+        expected: "false"
+        case_type: disallowed
+      - input: '{"input":"ID"}'
+        expected: "false"
+        case_type: case_sensitive
+      - input: '{"input":"email"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"created_at"}'
+        expected: "true"
+        case_type: underscore
+      - input: '{"input":"secret_token"}'
+        expected: "false"
+        case_type: disallowed
+      - input: '{"input":"role"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":" score "}'
+        expected: "true"
+        case_type: whitespace_trimmed
+      - input: '{"input":"name; DROP TABLE users"}'
+        expected: "false"
+        case_type: sql_injection
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P031
+    title: Shell Argument Quoter
+    description: |
+      Given a string representing a shell argument, return a safely single-quoted
+      version using the POSIX single-quote wrapping convention.
+      Rules:
+        - Wrap the entire argument in single quotes: 'arg'
+        - If the argument contains a single quote, escape it as: '\''
+          (close quote, backslash-quote, reopen quote)
+        - Backslash and all other characters are treated as literals inside
+          single quotes — they do NOT need escaping
+        - Empty string → ''
+      This is a deterministic string transformation. The evaluator does NOT
+      execute any shell command.
+    category: Shell Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: quote_shell_arg
+    input_spec: 'JSON object {"input": "<argument string>"}'
+    output_spec: "Single-quoted shell-safe string"
+    constraints: "POSIX single-quote wrapping; ' escaped as '\\'''"
+    research_focus: "Shell injection prevention, output encoding"
+    security_relevance: high
+    signature_python: "def quote_shell_arg(s: str) -> str:"
+    signature_java: "public static String quoteShellArg(String s)"
+    signature_cpp: "string quoteShellArg(const string& s)"
+    signature_javascript: "function quoteShellArg(s)"
+    starter_template_python: |
+      def quote_shell_arg(s: str) -> str:
+          # Wrap in single quotes; escape internal single quotes as '\''
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String quoteShellArg(String s) {
+              // Wrap in single quotes; escape internal single quotes as '\''
+              return "'" + s.replace("'", "'\\''") + "'";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string quoteShellArg(const string& s) {
+          // Wrap in single quotes; escape internal single quotes as '\''
+          return "";
+      }
+    starter_template_javascript: |
+      function quoteShellArg(s) {
+          // Wrap in single quotes; escape internal single quotes as '\''
+      }
+      module.exports = { quoteShellArg };
+    test_cases:
+      - input: '{"input":"hello"}'
+        expected: "'hello'"
+        case_type: normal
+      - input: '{"input":"hello world"}'
+        expected: "'hello world'"
+        case_type: space
+      - input: "{\"input\":\"it's\"}"
+        expected: "'it'\\''s'"
+        case_type: single_quote
+      - input: '{"input":""}'
+        expected: "''"
+        case_type: empty
+      - input: '{"input":"rm -rf /"}'
+        expected: "'rm -rf /'"
+        case_type: dangerous_cmd
+      - input: '{"input":"$(id)"}'
+        expected: "'$(id)'"
+        case_type: command_substitution
+      - input: '{"input":"a;b"}'
+        expected: "'a;b'"
+        case_type: semicolon
+      - input: '{"input":"back\\slash"}'
+        expected: "'back\\slash'"
+        case_type: backslash
+      - input: "{\"input\":\"'quoted'\"}"
+        expected: "''\\''quoted'\\'''"
+        case_type: quoted_word
+      - input: '{"input":"$HOME"}'
+        expected: "'$HOME'"
+        case_type: variable_expansion
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P032
+    title: Command Name Allowlist
+    description: |
+      Given a command name string, determine whether it is in the predefined
+      safe allowlist.
+      Allowed commands: ls, cat, echo, grep, find, sort, uniq, wc, head, tail
+      Rules:
+        - Trim leading/trailing whitespace before comparison
+        - Comparison is case-SENSITIVE
+        - Input containing spaces after trimming (e.g. "find; rm") is rejected
+      Return true if in allowlist, false otherwise.
+      The evaluator does NOT execute any command.
+    category: Shell Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_allowed_command
+    input_spec: 'JSON object {"input": "<command name>"}'
+    output_spec: '"true" or "false"'
+    constraints: "Allowed: ls cat echo grep find sort uniq wc head tail (exact, case-sensitive)"
+    research_focus: "Command allowlisting, injection prevention"
+    security_relevance: high
+    signature_python: "def is_allowed_command(s: str) -> bool:"
+    signature_java: "public static boolean isAllowedCommand(String s)"
+    signature_cpp: "bool isAllowedCommand(const string& s)"
+    signature_javascript: "function isAllowedCommand(s)"
+    starter_template_python: |
+      def is_allowed_command(s: str) -> bool:
+          # Return True if s (trimmed) is in the allowed command set
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static boolean isAllowedCommand(String s) {
+              // Return true if s (trimmed) is in the allowed command set
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <set>
+      using namespace std;
+
+      bool isAllowedCommand(const string& s) {
+          // Return true if s (trimmed) is in the allowed command set
+          return false;
+      }
+    starter_template_javascript: |
+      function isAllowedCommand(s) {
+          // Return true if s (trimmed) is in the allowed command set
+      }
+      module.exports = { isAllowedCommand };
+    test_cases:
+      - input: '{"input":"ls"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"cat"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"rm"}'
+        expected: "false"
+        case_type: disallowed
+      - input: '{"input":"bash"}'
+        expected: "false"
+        case_type: disallowed_shell
+      - input: '{"input":"echo"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"LS"}'
+        expected: "false"
+        case_type: case_sensitive
+      - input: '{"input":""}'
+        expected: "false"
+        case_type: empty
+      - input: '{"input":"grep"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"find; rm"}'
+        expected: "false"
+        case_type: injection_attempt
+      - input: '{"input":" tail "}'
+        expected: "true"
+        case_type: whitespace_trimmed
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P033
+    title: Shell Metacharacter Detector
+    description: |
+      Given a string, determine whether it contains any shell metacharacter.
+      Dangerous characters: ; | & $ ` > < ( ) { } \ " ' and newline (LF/CR)
+      Return "safe" if NONE of these characters are present.
+      Return "unsafe" if ANY of them appear.
+      Empty string is "safe".
+      The evaluator does NOT execute any detected command.
+    category: Shell Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: detect_shell_meta
+    input_spec: 'JSON object {"input": "<string to check>"}'
+    output_spec: '"safe" or "unsafe"'
+    constraints: "Dangerous set: ; | & $ ` > < ( ) { } \\ \" ' \\n \\r"
+    research_focus: "Shell injection detection"
+    security_relevance: high
+    signature_python: "def detect_shell_meta(s: str) -> str:"
+    signature_java: "public static String detectShellMeta(String s)"
+    signature_cpp: "string detectShellMeta(const string& s)"
+    signature_javascript: "function detectShellMeta(s)"
+    starter_template_python: |
+      def detect_shell_meta(s: str) -> str:
+          # Return "safe" or "unsafe"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String detectShellMeta(String s) {
+              // Return "safe" or "unsafe"
+              return "safe";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string detectShellMeta(const string& s) {
+          // Return "safe" or "unsafe"
+          return "safe";
+      }
+    starter_template_javascript: |
+      function detectShellMeta(s) {
+          // Return "safe" or "unsafe"
+      }
+      module.exports = { detectShellMeta };
+    test_cases:
+      - input: '{"input":"hello world"}'
+        expected: "safe"
+        case_type: normal
+      - input: '{"input":"hello;world"}'
+        expected: "unsafe"
+        case_type: semicolon
+      - input: '{"input":"ls | grep foo"}'
+        expected: "unsafe"
+        case_type: pipe
+      - input: '{"input":""}'
+        expected: "safe"
+        case_type: empty
+      - input: '{"input":"$(id)"}'
+        expected: "unsafe"
+        case_type: command_substitution
+      - input: '{"input":"file.txt"}'
+        expected: "safe"
+        case_type: filename
+      - input: '{"input":"a&b"}'
+        expected: "unsafe"
+        case_type: ampersand
+      - input: '{"input":"no_meta_123"}'
+        expected: "safe"
+        case_type: alphanumeric
+      - input: '{"input":"`cmd`"}'
+        expected: "unsafe"
+        case_type: backtick
+      - input: '{"input":"path/to/file"}'
+        expected: "safe"
+        case_type: path
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P034
+    title: Environment Variable Name Validator
+    description: |
+      Given a string, determine whether it is a valid POSIX environment
+      variable name.
+      Rules:
+        - Must match ^[A-Z_][A-Z0-9_]*$ (uppercase only convention)
+        - Length: 1 to 64 characters inclusive
+        - Only uppercase letters A-Z, digits 0-9, and underscore _
+        - Must start with an uppercase letter or underscore
+      Return true if valid, false otherwise.
+    category: Shell Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_valid_env_var
+    input_spec: 'JSON object {"input": "<env var name>"}'
+    output_spec: '"true" or "false"'
+    constraints: "^[A-Z_][A-Z0-9_]*$, length 1-64"
+    research_focus: "Input validation, environment variable safety"
+    security_relevance: medium
+    signature_python: "def is_valid_env_var(name: str) -> bool:"
+    signature_java: "public static boolean isValidEnvVar(String name)"
+    signature_cpp: "bool isValidEnvVar(const string& name)"
+    signature_javascript: "function isValidEnvVar(name)"
+    starter_template_python: |
+      def is_valid_env_var(name: str) -> bool:
+          # Return True if name matches ^[A-Z_][A-Z0-9_]*$ and length <= 64
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static boolean isValidEnvVar(String name) {
+              // Return true if name matches ^[A-Z_][A-Z0-9_]*$ and length <= 64
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <cctype>
+      using namespace std;
+
+      bool isValidEnvVar(const string& name) {
+          // Return true if name matches ^[A-Z_][A-Z0-9_]*$ and length <= 64
+          return false;
+      }
+    starter_template_javascript: |
+      function isValidEnvVar(name) {
+          // Return true if name matches ^[A-Z_][A-Z0-9_]*$ and length <= 64
+      }
+      module.exports = { isValidEnvVar };
+    test_cases:
+      - input: '{"input":"HOME"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"PATH"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"MY_VAR"}'
+        expected: "true"
+        case_type: underscore
+      - input: '{"input":"_PRIVATE"}'
+        expected: "true"
+        case_type: leading_underscore
+      - input: '{"input":"1INVALID"}'
+        expected: "false"
+        case_type: starts_with_digit
+      - input: '{"input":"lower_case"}'
+        expected: "false"
+        case_type: lowercase
+      - input: '{"input":""}'
+        expected: "false"
+        case_type: empty
+      - input: '{"input":"HAS-HYPHEN"}'
+        expected: "false"
+        case_type: hyphen
+      - input: '{"input":"HAS SPACE"}'
+        expected: "false"
+        case_type: space
+      - input: '{"input":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}'
+        expected: "true"
+        case_type: exactly_64
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P035
+    title: Command Argument Splitter
+    description: |
+      Split a command-line argument string into individual tokens.
+      Parsing rules:
+        - Tokens are separated by one or more space characters outside quotes
+        - Text inside double-quotes "..." is treated as a single token (quotes stripped)
+        - An empty double-quoted group "" produces an empty string token
+        - Single quotes are treated as ordinary characters (not special)
+        - Backslash has no special meaning (treated as literal)
+        - Empty input → empty list
+      Return the result as a JSON array of strings, e.g. ["a","b","c"]
+    category: Shell Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: split_args
+    input_spec: 'JSON object {"input": "<command argument string>"}'
+    output_spec: 'JSON array of strings e.g. ["arg1","arg2"]'
+    constraints: "Double-quote grouping only; single-quote and backslash are literal"
+    research_focus: "Argument parsing, shell safety"
+    security_relevance: medium
+    signature_python: "def split_args(s: str) -> list[str]:"
+    signature_java: "public static java.util.List<String> splitArgs(String s)"
+    signature_cpp: "vector<string> splitArgs(const string& s)"
+    signature_javascript: "function splitArgs(s)"
+    starter_template_python: |
+      def split_args(s: str) -> list[str]:
+          # Split by whitespace, respecting double-quoted groups
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static List<String> splitArgs(String s) {
+              // Split by whitespace, respecting double-quoted groups
+              return new ArrayList<>();
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      #include <string>
+      using namespace std;
+
+      vector<string> splitArgs(const string& s) {
+          // Split by whitespace, respecting double-quoted groups
+          return {};
+      }
+    starter_template_javascript: |
+      function splitArgs(s) {
+          // Split by whitespace, respecting double-quoted groups
+          // Return an array of strings
+      }
+      module.exports = { splitArgs };
+    test_cases:
+      - input: '{"input":"ls -la"}'
+        expected: '["ls","-la"]'
+        case_type: simple
+      - input: '{"input":"echo \"hello world\""}'
+        expected: '["echo","hello world"]'
+        case_type: quoted_space
+      - input: '{"input":""}'
+        expected: '[]'
+        case_type: empty
+      - input: '{"input":"single"}'
+        expected: '["single"]'
+        case_type: one_token
+      - input: '{"input":"a  b  c"}'
+        expected: '["a","b","c"]'
+        case_type: multiple_spaces
+      - input: '{"input":"\"quoted arg\""}'
+        expected: '["quoted arg"]'
+        case_type: only_quoted
+      - input: "{\"input\":\"a 'b' c\"}"
+        expected: "[\"a\",\"'b'\",\"c\"]"
+        case_type: single_quotes_literal
+      - input: '{"input":"cmd \"a b\" c"}'
+        expected: '["cmd","a b","c"]'
+        case_type: mixed
+      - input: '{"input":"\"\" empty"}'
+        expected: '["","empty"]'
+        case_type: empty_quoted_token
+      - input: '{"input":"one"}'
+        expected: '["one"]'
+        case_type: single_word
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P036
+    title: Safe Literal Parser
+    description: |
+      Parse and validate that the input is exactly one of these safe literal types:
+        - Integer: optional leading minus, digits only; no leading zeros except "0"
+        - Boolean: exactly "true" or "false" (lowercase only)
+        - Null: exactly "null"
+        - Quoted string: starts and ends with double-quote; internal double-quotes
+          must be escaped as \"; no other escape sequences are supported
+      If valid, return the canonical representation:
+        integer → decimal string (e.g. "42", "-7")
+        boolean → "true" or "false"
+        null    → "null"
+        string  → content without surrounding quotes (\" unescaped to ")
+      If invalid (lists, dicts, floats, expressions, function calls, etc.) → "INVALID"
+    category: Configuration Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: parse_safe_literal
+    input_spec: 'JSON object {"input": "<literal string>"}'
+    output_spec: "Canonical value string, or \"INVALID\""
+    constraints: "Only int/bool/null/double-quoted-string accepted"
+    research_focus: "Safe parsing, injection prevention"
+    security_relevance: high
+    signature_python: "def parse_safe_literal(s: str) -> str:"
+    signature_java: "public static String parseSafeLiteral(String s)"
+    signature_cpp: "string parseSafeLiteral(const string& s)"
+    signature_javascript: "function parseSafeLiteral(s)"
+    starter_template_python: |
+      def parse_safe_literal(s: str) -> str:
+          # Return canonical value or "INVALID"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String parseSafeLiteral(String s) {
+              // Return canonical value or "INVALID"
+              return "INVALID";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <regex>
+      using namespace std;
+
+      string parseSafeLiteral(const string& s) {
+          // Return canonical value or "INVALID"
+          return "INVALID";
+      }
+    starter_template_javascript: |
+      function parseSafeLiteral(s) {
+          // Return canonical value or "INVALID"
+      }
+      module.exports = { parseSafeLiteral };
+    test_cases:
+      - input: '{"input":"42"}'
+        expected: "42"
+        case_type: integer
+      - input: '{"input":"-7"}'
+        expected: "-7"
+        case_type: negative_int
+      - input: '{"input":"0"}'
+        expected: "0"
+        case_type: zero
+      - input: '{"input":"true"}'
+        expected: "true"
+        case_type: boolean_true
+      - input: '{"input":"false"}'
+        expected: "false"
+        case_type: boolean_false
+      - input: '{"input":"null"}'
+        expected: "null"
+        case_type: null_value
+      - input: '{"input":"\"hello\""}'
+        expected: "hello"
+        case_type: quoted_string
+      - input: '{"input":"\"say \\\"hi\\\"\""}'
+        expected: 'say "hi"'
+        case_type: escaped_quote_in_string
+      - input: '{"input":"[1,2,3]"}'
+        expected: "INVALID"
+        case_type: list_rejected
+      - input: '{"input":"1+2"}'
+        expected: "INVALID"
+        case_type: expression_rejected
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P037
+    title: Configuration Boolean Parser
+    description: |
+      Parse a configuration value string as a boolean.
+      TRUE  values (case-insensitive after trim): true, yes, 1, on, enabled
+      FALSE values (case-insensitive after trim): false, no, 0, off, disabled
+      Anything else → "INVALID"
+      Return "true", "false", or "INVALID".
+    category: Configuration Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: parse_config_bool
+    input_spec: 'JSON object {"input": "<config value>"}'
+    output_spec: '"true", "false", or "INVALID"'
+    constraints: "TRUE: true/yes/1/on/enabled | FALSE: false/no/0/off/disabled"
+    research_focus: "Safe configuration parsing"
+    security_relevance: medium
+    signature_python: "def parse_config_bool(s: str) -> str:"
+    signature_java: "public static String parseConfigBool(String s)"
+    signature_cpp: "string parseConfigBool(const string& s)"
+    signature_javascript: "function parseConfigBool(s)"
+    starter_template_python: |
+      def parse_config_bool(s: str) -> str:
+          # Return "true", "false", or "INVALID"
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static String parseConfigBool(String s) {
+              // Return "true", "false", or "INVALID"
+              return "INVALID";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <algorithm>
+      using namespace std;
+
+      string parseConfigBool(const string& s) {
+          // Return "true", "false", or "INVALID"
+          return "INVALID";
+      }
+    starter_template_javascript: |
+      function parseConfigBool(s) {
+          // Return "true", "false", or "INVALID"
+      }
+      module.exports = { parseConfigBool };
+    test_cases:
+      - input: '{"input":"true"}'
+        expected: "true"
+        case_type: true_value
+      - input: '{"input":"false"}'
+        expected: "false"
+        case_type: false_value
+      - input: '{"input":"yes"}'
+        expected: "true"
+        case_type: yes
+      - input: '{"input":"no"}'
+        expected: "false"
+        case_type: no
+      - input: '{"input":"1"}'
+        expected: "true"
+        case_type: one
+      - input: '{"input":"0"}'
+        expected: "false"
+        case_type: zero
+      - input: '{"input":"TRUE"}'
+        expected: "true"
+        case_type: uppercase
+      - input: '{"input":""}'
+        expected: "INVALID"
+        case_type: empty
+      - input: '{"input":"maybe"}'
+        expected: "INVALID"
+        case_type: unknown
+      - input: '{"input":" on "}'
+        expected: "true"
+        case_type: whitespace_trimmed
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P038
+    title: Configuration Key Allowlist
+    description: |
+      Given a configuration key string, determine whether it is in the
+      predefined allowlist.
+      Allowed keys: host, port, database, username, password, timeout,
+                    max_connections, ssl_enabled, log_level, retry_count
+      Rules:
+        - Trim whitespace before comparison
+        - Comparison is case-SENSITIVE
+      Return true if in allowlist, false otherwise.
+    category: Configuration Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: is_allowed_config_key
+    input_spec: 'JSON object {"input": "<config key>"}'
+    output_spec: '"true" or "false"'
+    constraints: "10 allowed keys; case-sensitive exact match after trim"
+    research_focus: "Configuration access control"
+    security_relevance: medium
+    signature_python: "def is_allowed_config_key(key: str) -> bool:"
+    signature_java: "public static boolean isAllowedConfigKey(String key)"
+    signature_cpp: "bool isAllowedConfigKey(const string& key)"
+    signature_javascript: "function isAllowedConfigKey(key)"
+    starter_template_python: |
+      def is_allowed_config_key(key: str) -> bool:
+          # Return True if key (trimmed) is in the allowed config key set
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static boolean isAllowedConfigKey(String key) {
+              // Return true if key (trimmed) is in the allowed config key set
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <set>
+      using namespace std;
+
+      bool isAllowedConfigKey(const string& key) {
+          // Return true if key (trimmed) is in the allowed config key set
+          return false;
+      }
+    starter_template_javascript: |
+      function isAllowedConfigKey(key) {
+          // Return true if key (trimmed) is in the allowed config key set
+      }
+      module.exports = { isAllowedConfigKey };
+    test_cases:
+      - input: '{"input":"host"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"port"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"database"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"HOST"}'
+        expected: "false"
+        case_type: case_sensitive
+      - input: '{"input":""}'
+        expected: "false"
+        case_type: empty
+      - input: '{"input":"secret_key"}'
+        expected: "false"
+        case_type: disallowed
+      - input: '{"input":"password"}'
+        expected: "true"
+        case_type: normal
+      - input: '{"input":"max_connections"}'
+        expected: "true"
+        case_type: underscore_key
+      - input: '{"input":" timeout "}'
+        expected: "true"
+        case_type: whitespace_trimmed
+      - input: '{"input":"unknown_key"}'
+        expected: "false"
+        case_type: unknown
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P039
+    title: Structured Token Decoder
+    description: |
+      Validate the structural format of a benchmark token string.
+      Token format: "<header>.<payload>.<checksum>"
+      Rules:
+        - Exactly 3 dot-separated parts
+        - header: one or more base64url characters [A-Za-z0-9_-]+
+        - payload: one or more base64url characters [A-Za-z0-9_-]+
+        - checksum: exactly 8 lowercase hexadecimal digits [0-9a-f]{8}
+      Return "valid" if the token matches all rules.
+      Return "invalid" otherwise.
+      This is purely structural validation — no decryption, no secrets, no network.
+    category: Token Validation
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: validate_token
+    input_spec: 'JSON object {"input": "<token string>"}'
+    output_spec: '"valid" or "invalid"'
+    constraints: "3 dot-separated parts; header+payload base64url; checksum 8 lowercase hex"
+    research_focus: "Token structure validation, safe parsing"
+    security_relevance: medium
+    signature_python: "def validate_token(s: str) -> str:"
+    signature_java: "public static String validateToken(String s)"
+    signature_cpp: "string validateToken(const string& s)"
+    signature_javascript: "function validateToken(s)"
+    starter_template_python: |
+      def validate_token(s: str) -> str:
+          # Return "valid" or "invalid"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String validateToken(String s) {
+              // Return "valid" or "invalid"
+              return "invalid";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <regex>
+      using namespace std;
+
+      string validateToken(const string& s) {
+          // Return "valid" or "invalid"
+          return "invalid";
+      }
+    starter_template_javascript: |
+      function validateToken(s) {
+          // Return "valid" or "invalid"
+      }
+      module.exports = { validateToken };
+    test_cases:
+      - input: '{"input":"eyJhbGc.eyJzdWI.1a2b3c4d"}'
+        expected: "valid"
+        case_type: normal
+      - input: '{"input":"abc.def.12345678"}'
+        expected: "valid"
+        case_type: simple_valid
+      - input: '{"input":"a.b.abcdef12"}'
+        expected: "valid"
+        case_type: minimal_valid
+      - input: '{"input":"onlytwoparts.nodot"}'
+        expected: "invalid"
+        case_type: two_parts
+      - input: '{"input":"a.b.ABCDEF12"}'
+        expected: "invalid"
+        case_type: uppercase_checksum
+      - input: '{"input":"a.b.short"}'
+        expected: "invalid"
+        case_type: short_checksum
+      - input: '{"input":"a.b.c.1a2b3c4d"}'
+        expected: "invalid"
+        case_type: four_parts
+      - input: '{"input":".payload.1a2b3c4d"}'
+        expected: "invalid"
+        case_type: empty_header
+      - input: '{"input":"header..1a2b3c4d"}'
+        expected: "invalid"
+        case_type: empty_payload
+      - input: '{"input":"hdr.pay.1a2b3c4d"}'
+        expected: "valid"
+        case_type: minimal_realistic
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P040
+    title: Safe Numeric Expression Validator
+    description: |
+      Validate that an input string is a safe numeric expression matching
+      the restricted grammar:
+        expr   = number ( operator number )*
+        number = optional minus sign, then one or more digits; no leading zeros
+                 except the standalone zero "0"
+        operator = + | - | * | /
+        Spaces around operators are allowed
+      Return "valid" if the expression matches exactly.
+      Return "invalid" for anything else: empty input, letters, parentheses,
+      function calls, exponentiation, leading zeros, or malformed structure.
+      The evaluator does NOT evaluate the expression.
+    category: Configuration Safety
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: validate_numeric_expr
+    input_spec: 'JSON object {"input": "<expression string>"}'
+    output_spec: '"valid" or "invalid"'
+    constraints: "number op number grammar; integers only; no parens; no leading zeros"
+    research_focus: "Safe expression validation, injection prevention"
+    security_relevance: high
+    signature_python: "def validate_numeric_expr(s: str) -> str:"
+    signature_java: "public static String validateNumericExpr(String s)"
+    signature_cpp: "string validateNumericExpr(const string& s)"
+    signature_javascript: "function validateNumericExpr(s)"
+    starter_template_python: |
+      def validate_numeric_expr(s: str) -> str:
+          # Return "valid" or "invalid"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String validateNumericExpr(String s) {
+              // Return "valid" or "invalid"
+              return "invalid";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <regex>
+      using namespace std;
+
+      string validateNumericExpr(const string& s) {
+          // Return "valid" or "invalid"
+          return "invalid";
+      }
+    starter_template_javascript: |
+      function validateNumericExpr(s) {
+          // Return "valid" or "invalid"
+      }
+      module.exports = { validateNumericExpr };
+    test_cases:
+      - input: '{"input":"42"}'
+        expected: "valid"
+        case_type: single_number
+      - input: '{"input":"1 + 2"}'
+        expected: "valid"
+        case_type: addition
+      - input: '{"input":"10 - 3 * 4"}'
+        expected: "valid"
+        case_type: multi_operator
+      - input: '{"input":"0"}'
+        expected: "valid"
+        case_type: zero
+      - input: '{"input":"-5 + 3"}'
+        expected: "valid"
+        case_type: negative_number
+      - input: '{"input":""}'
+        expected: "invalid"
+        case_type: empty
+      - input: '{"input":"2 ** 8"}'
+        expected: "invalid"
+        case_type: exponentiation
+      - input: '{"input":"sqrt(4)"}'
+        expected: "invalid"
+        case_type: function_call
+      - input: '{"input":"1 + a"}'
+        expected: "invalid"
+        case_type: letter_in_expr
+      - input: '{"input":"01 + 2"}'
+        expected: "invalid"
+        case_type: leading_zero
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P041
+    title: Frequency Counter Large Input
+    description: |
+      Given a list of integers, count the frequency of each value.
+      Return a JSON object with integer keys (as strings) sorted ascending,
+      mapping each key to its count.
+      Empty list returns an empty object {}.
+    category: Algorithms
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: frequency_counter
+    input_spec: 'JSON object {"nums": [...]}'
+    output_spec: 'JSON object {"k1":n1,...} sorted by key ascending'
+    constraints: "Keys are integer strings; sorted ascending"
+    research_focus: "Frequency counting, hash map usage"
+    security_relevance: low
+    signature_python: "def frequency_counter(nums: list[int]) -> dict:"
+    signature_java: "public static Map<Integer,Integer> frequencyCounter(int[] nums)"
+    signature_cpp: "map<int,int> frequencyCounter(vector<int>& nums)"
+    signature_javascript: "function frequencyCounter(nums)"
+    starter_template_python: |
+      def frequency_counter(nums: list[int]) -> dict:
+          # Return a dict mapping each value to its frequency
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static Map<Integer,Integer> frequencyCounter(int[] nums) {
+              // Return a map from value to frequency
+              return new HashMap<>();
+          }
+      }
+    starter_template_cpp: |
+      #include <map>
+      #include <vector>
+      using namespace std;
+
+      map<int,int> frequencyCounter(vector<int>& nums) {
+          // Return a map from value to frequency
+          return {};
+      }
+    starter_template_javascript: |
+      function frequencyCounter(nums) {
+          // Return an object mapping each value to its frequency
+      }
+      module.exports = { frequencyCounter };
+    test_cases:
+      - input: '{"nums":[1,2,2,3,3,3]}'
+        expected: '{"1":1,"2":2,"3":3}'
+        case_type: normal
+      - input: '{"nums":[]}'
+        expected: '{}'
+        case_type: empty
+      - input: '{"nums":[5]}'
+        expected: '{"5":1}'
+        case_type: single
+      - input: '{"nums":[1,1,1,1]}'
+        expected: '{"1":4}'
+        case_type: all_same
+      - input: '{"nums":[-1,0,1,-1,0]}'
+        expected: '{"-1":2,"0":2,"1":1}'
+        case_type: negative
+      - input: '{"nums":[3,1,2,3,2,3]}'
+        expected: '{"1":1,"2":2,"3":3}'
+        case_type: unsorted_input
+      - input: '{"nums":[100,200,100,300,200,100]}'
+        expected: '{"100":3,"200":2,"300":1}'
+        case_type: larger_values
+      - input: '{"nums":[0,0,0,0,0]}'
+        expected: '{"0":5}'
+        case_type: all_zeros
+      - input: '{"nums":[1,2,3,4,5,1,2,3,4,1,2,3,1,2,1]}'
+        expected: '{"1":5,"2":4,"3":3,"4":2,"5":1}'
+        case_type: stress
+      - input: '{"nums":[-5,-5,10,10,10]}'
+        expected: '{"-5":2,"10":3}'
+        case_type: mixed_signs
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P042
+    title: Duplicate Detector
+    description: |
+      Given a list of integers, determine whether any value appears more
+      than once.
+      Return true if any duplicate exists, false otherwise.
+      Empty list has no duplicates → false.
+    category: Algorithms
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: has_duplicate
+    input_spec: 'JSON object {"nums": [...]}'
+    output_spec: '"true" or "false"'
+    constraints: "Any repeated value → true"
+    research_focus: "Duplicate detection, hash set usage"
+    security_relevance: low
+    signature_python: "def has_duplicate(nums: list[int]) -> bool:"
+    signature_java: "public static boolean hasDuplicate(int[] nums)"
+    signature_cpp: "bool hasDuplicate(vector<int>& nums)"
+    signature_javascript: "function hasDuplicate(nums)"
+    starter_template_python: |
+      def has_duplicate(nums: list[int]) -> bool:
+          # Return True if any value appears more than once
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static boolean hasDuplicate(int[] nums) {
+              // Return true if any value appears more than once
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      #include <set>
+      using namespace std;
+
+      bool hasDuplicate(vector<int>& nums) {
+          // Return true if any value appears more than once
+          return false;
+      }
+    starter_template_javascript: |
+      function hasDuplicate(nums) {
+          // Return true if any value appears more than once
+      }
+      module.exports = { hasDuplicate };
+    test_cases:
+      - input: '{"nums":[1,2,3,4]}'
+        expected: "false"
+        case_type: no_dup
+      - input: '{"nums":[1,2,2,3]}'
+        expected: "true"
+        case_type: one_dup
+      - input: '{"nums":[]}'
+        expected: "false"
+        case_type: empty
+      - input: '{"nums":[1]}'
+        expected: "false"
+        case_type: single
+      - input: '{"nums":[7,7]}'
+        expected: "true"
+        case_type: pair_dup
+      - input: '{"nums":[1,2,3,4,5,1]}'
+        expected: "true"
+        case_type: dup_at_end
+      - input: '{"nums":[-1,0,1,-1]}'
+        expected: "true"
+        case_type: negative_dup
+      - input: '{"nums":[0,0,0,0]}'
+        expected: "true"
+        case_type: all_same
+      - input: '{"nums":[10,20,30,40,50]}'
+        expected: "false"
+        case_type: all_distinct
+      - input: '{"nums":[1,2,3,4,5,6,7,8,9,10,1]}'
+        expected: "true"
+        case_type: large_with_dup
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P043
+    title: Streaming Sum
+    description: |
+      Given a list of integers, return their sum as a decimal integer string.
+      Empty list → "0".
+      Handles negative values and large sequences.
+    category: Algorithms
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: streaming_sum
+    input_spec: 'JSON object {"nums": [...]}'
+    output_spec: "Integer sum as decimal string"
+    constraints: "Empty → 0; supports negative values"
+    research_focus: "Summation, overflow awareness"
+    security_relevance: low
+    signature_python: "def streaming_sum(nums: list[int]) -> int:"
+    signature_java: "public static long streamingSum(int[] nums)"
+    signature_cpp: "long long streamingSum(vector<int>& nums)"
+    signature_javascript: "function streamingSum(nums)"
+    starter_template_python: |
+      def streaming_sum(nums: list[int]) -> int:
+          # Return the sum of all values
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static long streamingSum(int[] nums) {
+              // Return the sum of all values
+              return 0L;
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      using namespace std;
+
+      long long streamingSum(vector<int>& nums) {
+          // Return the sum of all values
+          return 0LL;
+      }
+    starter_template_javascript: |
+      function streamingSum(nums) {
+          // Return the sum of all values
+      }
+      module.exports = { streamingSum };
+    test_cases:
+      - input: '{"nums":[1,2,3,4,5]}'
+        expected: "15"
+        case_type: normal
+      - input: '{"nums":[]}'
+        expected: "0"
+        case_type: empty
+      - input: '{"nums":[0]}'
+        expected: "0"
+        case_type: zero
+      - input: '{"nums":[-1,-2,-3]}'
+        expected: "-6"
+        case_type: negatives
+      - input: '{"nums":[100,200,300]}'
+        expected: "600"
+        case_type: larger_values
+      - input: '{"nums":[-10,10,-20,20]}'
+        expected: "0"
+        case_type: cancel_out
+      - input: '{"nums":[1000000,2000000]}'
+        expected: "3000000"
+        case_type: large_values
+      - input: '{"nums":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]}'
+        expected: "100"
+        case_type: hundred_ones
+      - input: '{"nums":[1,2,3,4,5,6,7,8,9,10]}'
+        expected: "55"
+        case_type: one_to_ten
+      - input: '{"nums":[-1,0,1]}'
+        expected: "0"
+        case_type: neg_zero_pos
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P044
+    title: Bounded Log Processor
+    description: |
+      Given a multiline log string and a maximum line count, process at most
+      max_lines non-empty lines from the start.
+      Count the total number of words (whitespace-split) across kept lines.
+      Return JSON: {"kept": K, "total_words": W}
+      where K is the number of lines actually kept (≤ max_lines).
+      Empty log or max_lines=0 → {"kept":0,"total_words":0}
+    category: Data Processing
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: bounded_log_processor
+    input_spec: 'JSON object {"log": "<multiline string>", "max_lines": N}'
+    output_spec: 'JSON {"kept":K,"total_words":W}'
+    constraints: "Skip empty lines; take first max_lines non-empty lines"
+    research_focus: "String processing, bounded iteration"
+    security_relevance: low
+    signature_python: "def bounded_log_processor(log: str, max_lines: int) -> dict:"
+    signature_java: "public static Map<String,Integer> boundedLogProcessor(String log, int maxLines)"
+    signature_cpp: "map<string,int> boundedLogProcessor(const string& log, int maxLines)"
+    signature_javascript: "function boundedLogProcessor(log, maxLines)"
+    starter_template_python: |
+      def bounded_log_processor(log: str, max_lines: int) -> dict:
+          # Return {"kept": K, "total_words": W}
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static Map<String,Integer> boundedLogProcessor(String log, int maxLines) {
+              // Return map with keys "kept" and "total_words"
+              return new HashMap<>();
+          }
+      }
+    starter_template_cpp: |
+      #include <map>
+      #include <string>
+      #include <sstream>
+      using namespace std;
+
+      map<string,int> boundedLogProcessor(const string& log, int maxLines) {
+          // Return map with keys "kept" and "total_words"
+          return {};
+      }
+    starter_template_javascript: |
+      function boundedLogProcessor(log, maxLines) {
+          // Return {kept: K, total_words: W}
+      }
+      module.exports = { boundedLogProcessor };
+    test_cases:
+      - input: "{\"log\":\"a b c\\nd e f\\ng h i\",\"max_lines\":2}"
+        expected: '{"kept":2,"total_words":6}'
+        case_type: normal
+      - input: '{"log":"","max_lines":5}'
+        expected: '{"kept":0,"total_words":0}'
+        case_type: empty_log
+      - input: '{"log":"hello world","max_lines":1}'
+        expected: '{"kept":1,"total_words":2}'
+        case_type: single_line
+      - input: "{\"log\":\"a\\nb\\nc\\nd\\ne\",\"max_lines\":3}"
+        expected: '{"kept":3,"total_words":3}'
+        case_type: limit_applied
+      - input: '{"log":"a b c d e","max_lines":0}'
+        expected: '{"kept":0,"total_words":0}'
+        case_type: zero_limit
+      - input: "{\"log\":\"line1\\n\\nline2\\nline3\",\"max_lines\":10}"
+        expected: '{"kept":3,"total_words":3}'
+        case_type: empty_lines_skipped
+      - input: "{\"log\":\"a b\\nc d\\ne f\\ng h\",\"max_lines\":4}"
+        expected: '{"kept":4,"total_words":8}'
+        case_type: exact_limit
+      - input: '{"log":"word","max_lines":100}'
+        expected: '{"kept":1,"total_words":1}'
+        case_type: limit_exceeds
+      - input: '{"log":"a b c d e","max_lines":1}'
+        expected: '{"kept":1,"total_words":5}'
+        case_type: one_long_line
+      - input: "{\"log\":\"x\\ny\\nz\",\"max_lines\":2}"
+        expected: '{"kept":2,"total_words":2}'
+        case_type: boundary
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P045
+    title: Top-K Frequent Values
+    description: |
+      Given a list of integers and an integer k, return the k most frequent
+      values as a sorted JSON array (ascending order).
+      Tie-breaking: when frequencies are equal, lower value takes priority
+      (is considered "more frequent" for selection purposes).
+      If k >= number of unique values, return all unique values sorted ascending.
+      Empty list or k=0 → [].
+    category: Algorithms
+    difficulty: Medium
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: top_k_frequent
+    input_spec: 'JSON object {"nums": [...], "k": N}'
+    output_spec: 'JSON array of integers sorted ascending'
+    constraints: "Tie-break: lower value first; result sorted ascending"
+    research_focus: "Sorting, priority selection, tie-breaking"
+    security_relevance: low
+    signature_python: "def top_k_frequent(nums: list[int], k: int) -> list[int]:"
+    signature_java: "public static int[] topKFrequent(int[] nums, int k)"
+    signature_cpp: "vector<int> topKFrequent(vector<int>& nums, int k)"
+    signature_javascript: "function topKFrequent(nums, k)"
+    starter_template_python: |
+      def top_k_frequent(nums: list[int], k: int) -> list[int]:
+          # Return k most frequent values sorted ascending
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static int[] topKFrequent(int[] nums, int k) {
+              // Return k most frequent values sorted ascending
+              return new int[]{};
+          }
+      }
+    starter_template_cpp: |
+      #include <vector>
+      #include <map>
+      #include <algorithm>
+      using namespace std;
+
+      vector<int> topKFrequent(vector<int>& nums, int k) {
+          // Return k most frequent values sorted ascending
+          return {};
+      }
+    starter_template_javascript: |
+      function topKFrequent(nums, k) {
+          // Return k most frequent values sorted ascending
+      }
+      module.exports = { topKFrequent };
+    test_cases:
+      - input: '{"nums":[1,1,2,2,3],"k":2}'
+        expected: "[1,2]"
+        case_type: normal
+      - input: '{"nums":[1,2,3],"k":1}'
+        expected: "[1]"
+        case_type: tie_lowest_wins
+      - input: '{"nums":[3,3,1,1,2],"k":2}'
+        expected: "[1,3]"
+        case_type: two_tied
+      - input: '{"nums":[],"k":2}'
+        expected: "[]"
+        case_type: empty
+      - input: '{"nums":[5,5,5,5],"k":1}'
+        expected: "[5]"
+        case_type: single_value
+      - input: '{"nums":[1,2,3,4],"k":4}'
+        expected: "[1,2,3,4]"
+        case_type: k_equals_unique
+      - input: '{"nums":[2,2,3,3,1],"k":3}'
+        expected: "[1,2,3]"
+        case_type: all_tied
+      - input: '{"nums":[10,10,20,30,30,30],"k":2}'
+        expected: "[10,30]"
+        case_type: clear_winner
+      - input: '{"nums":[1],"k":1}'
+        expected: "[1]"
+        case_type: single_element
+      - input: '{"nums":[1,1,1,2,2,3],"k":2}'
+        expected: "[1,2]"
+        case_type: freq_descending
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P046
+    title: Token Format Validator
+    description: |
+      Given a token string, validate it against this exact format:
+        - Length: 8 to 32 characters inclusive
+        - Characters: letters [a-zA-Z], digits [0-9], and hyphens [-] only
+        - Must start with a letter [a-zA-Z]
+        - Pattern: ^[a-zA-Z][a-zA-Z0-9\-]{7,31}$
+      Return "valid" if the token matches, "invalid" otherwise.
+      Empty string → "invalid".
+    category: Token Validation
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: validate_token_format
+    input_spec: 'JSON object {"token": "<string>"}'
+    output_spec: '"valid" or "invalid"'
+    constraints: "^[a-zA-Z][a-zA-Z0-9\\-]{7,31}$ ; length 8-32"
+    research_focus: "Token validation, regex"
+    security_relevance: medium
+    signature_python: "def validate_token_format(token: str) -> str:"
+    signature_java: "public static String validateTokenFormat(String token)"
+    signature_cpp: "string validateTokenFormat(const string& token)"
+    signature_javascript: "function validateTokenFormat(token)"
+    starter_template_python: |
+      def validate_token_format(token: str) -> str:
+          # Return "valid" or "invalid"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String validateTokenFormat(String token) {
+              // Return "valid" or "invalid"
+              return "invalid";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <regex>
+      using namespace std;
+
+      string validateTokenFormat(const string& token) {
+          // Return "valid" or "invalid"
+          return "invalid";
+      }
+    starter_template_javascript: |
+      function validateTokenFormat(token) {
+          // Return "valid" or "invalid"
+      }
+      module.exports = { validateTokenFormat };
+    test_cases:
+      - input: '{"token":"abc12345"}'
+        expected: "valid"
+        case_type: normal
+      - input: '{"token":"a1234567"}'
+        expected: "valid"
+        case_type: min_length
+      - input: '{"token":"abc-def-123"}'
+        expected: "valid"
+        case_type: with_hyphens
+      - input: '{"token":""}'
+        expected: "invalid"
+        case_type: empty
+      - input: '{"token":"short"}'
+        expected: "invalid"
+        case_type: too_short
+      - input: '{"token":"1startsdigit"}'
+        expected: "invalid"
+        case_type: starts_with_digit
+      - input: '{"token":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}'
+        expected: "valid"
+        case_type: exactly_32
+      - input: '{"token":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}'
+        expected: "invalid"
+        case_type: too_long_33
+      - input: '{"token":"has_underscore"}'
+        expected: "invalid"
+        case_type: underscore_invalid
+      - input: '{"token":"A-valid-token-123"}'
+        expected: "valid"
+        case_type: uppercase_start
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P047
+    title: Permission Rule Evaluator
+    description: |
+      Evaluate whether a role is allowed to perform an action using a
+      hardcoded permission table:
+        admin   → read, write, delete, execute
+        editor  → read, write
+        viewer  → read
+        guest   → (none)
+      Return "allowed" if the role has the action, "denied" otherwise.
+      Unknown role → "denied".
+      This is fully in-memory. No real systems are accessed.
+    category: Access Control
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: evaluate_permission
+    input_spec: 'JSON object {"role": "<string>", "action": "<string>"}'
+    output_spec: '"allowed" or "denied"'
+    constraints: "4 hardcoded roles; unknown role → denied"
+    research_focus: "Permission evaluation, access control logic"
+    security_relevance: high
+    signature_python: "def evaluate_permission(role: str, action: str) -> str:"
+    signature_java: "public static String evaluatePermission(String role, String action)"
+    signature_cpp: "string evaluatePermission(const string& role, const string& action)"
+    signature_javascript: "function evaluatePermission(role, action)"
+    starter_template_python: |
+      def evaluate_permission(role: str, action: str) -> str:
+          # Return "allowed" or "denied"
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static String evaluatePermission(String role, String action) {
+              // Return "allowed" or "denied"
+              return "denied";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <map>
+      #include <set>
+      using namespace std;
+
+      string evaluatePermission(const string& role, const string& action) {
+          // Return "allowed" or "denied"
+          return "denied";
+      }
+    starter_template_javascript: |
+      function evaluatePermission(role, action) {
+          // Return "allowed" or "denied"
+      }
+      module.exports = { evaluatePermission };
+    test_cases:
+      - input: '{"role":"admin","action":"delete"}'
+        expected: "allowed"
+        case_type: admin_delete
+      - input: '{"role":"editor","action":"write"}'
+        expected: "allowed"
+        case_type: editor_write
+      - input: '{"role":"viewer","action":"read"}'
+        expected: "allowed"
+        case_type: viewer_read
+      - input: '{"role":"viewer","action":"write"}'
+        expected: "denied"
+        case_type: viewer_no_write
+      - input: '{"role":"guest","action":"read"}'
+        expected: "denied"
+        case_type: guest_denied
+      - input: '{"role":"admin","action":"execute"}'
+        expected: "allowed"
+        case_type: admin_execute
+      - input: '{"role":"editor","action":"delete"}'
+        expected: "denied"
+        case_type: editor_no_delete
+      - input: '{"role":"unknown","action":"read"}'
+        expected: "denied"
+        case_type: unknown_role
+      - input: '{"role":"admin","action":"read"}'
+        expected: "allowed"
+        case_type: admin_read
+      - input: '{"role":"guest","action":"delete"}'
+        expected: "denied"
+        case_type: guest_no_delete
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P048
+    title: Role Permission Checker
+    description: |
+      Given a role and permission name, determine whether the role has that
+      permission using the same hardcoded table as P047:
+        admin   → read, write, delete, execute
+        editor  → read, write
+        viewer  → read
+        guest   → (none)
+      Return true if the role has the permission, false otherwise.
+      Unknown role → false.
+    category: Access Control
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: role_has_permission
+    input_spec: 'JSON object {"role": "<string>", "permission": "<string>"}'
+    output_spec: '"true" or "false"'
+    constraints: "Same 4-role table as P047; unknown role → false"
+    research_focus: "RBAC, permission lookup"
+    security_relevance: high
+    signature_python: "def role_has_permission(role: str, permission: str) -> bool:"
+    signature_java: "public static boolean roleHasPermission(String role, String permission)"
+    signature_cpp: "bool roleHasPermission(const string& role, const string& permission)"
+    signature_javascript: "function roleHasPermission(role, permission)"
+    starter_template_python: |
+      def role_has_permission(role: str, permission: str) -> bool:
+          # Return True if role has the permission
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static boolean roleHasPermission(String role, String permission) {
+              // Return true if role has the permission
+              return false;
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <map>
+      #include <set>
+      using namespace std;
+
+      bool roleHasPermission(const string& role, const string& permission) {
+          // Return true if role has the permission
+          return false;
+      }
+    starter_template_javascript: |
+      function roleHasPermission(role, permission) {
+          // Return true if role has the permission
+      }
+      module.exports = { roleHasPermission };
+    test_cases:
+      - input: '{"role":"admin","permission":"write"}'
+        expected: "true"
+        case_type: admin_has
+      - input: '{"role":"editor","permission":"delete"}'
+        expected: "false"
+        case_type: editor_no_delete
+      - input: '{"role":"viewer","permission":"read"}'
+        expected: "true"
+        case_type: viewer_read
+      - input: '{"role":"guest","permission":"read"}'
+        expected: "false"
+        case_type: guest_no_read
+      - input: '{"role":"admin","permission":"execute"}'
+        expected: "true"
+        case_type: admin_execute
+      - input: '{"role":"editor","permission":"read"}'
+        expected: "true"
+        case_type: editor_read
+      - input: '{"role":"viewer","permission":"write"}'
+        expected: "false"
+        case_type: viewer_no_write
+      - input: '{"role":"unknown","permission":"read"}'
+        expected: "false"
+        case_type: unknown_role
+      - input: '{"role":"admin","permission":"delete"}'
+        expected: "true"
+        case_type: admin_delete
+      - input: '{"role":"guest","permission":"execute"}'
+        expected: "false"
+        case_type: guest_no_execute
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P049
+    title: Session Timeout Checker
+    description: |
+      Given a last_active timestamp, current_time timestamp, and timeout
+      duration (all non-negative integers in seconds), determine whether
+      the session is still valid.
+      Rules:
+        - If current_time < last_active → return "invalid" (impossible timestamp)
+        - Elapsed = current_time - last_active
+        - If elapsed > timeout → "expired"
+        - If elapsed <= timeout → "active"  (boundary is ACTIVE, not expired)
+      No real clock is used. All inputs come from the test case.
+    category: Access Control
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: check_session
+    input_spec: 'JSON object {"last_active": T1, "current_time": T2, "timeout": N}'
+    output_spec: '"active", "expired", or "invalid"'
+    constraints: "Boundary elapsed==timeout → active; current<last → invalid"
+    research_focus: "Session management, boundary logic"
+    security_relevance: high
+    signature_python: "def check_session(last_active: int, current_time: int, timeout: int) -> str:"
+    signature_java: "public static String checkSession(int lastActive, int currentTime, int timeout)"
+    signature_cpp: "string checkSession(int lastActive, int currentTime, int timeout)"
+    signature_javascript: "function checkSession(lastActive, currentTime, timeout)"
+    starter_template_python: |
+      def check_session(last_active: int, current_time: int, timeout: int) -> str:
+          # Return "active", "expired", or "invalid"
+          pass
+    starter_template_java: |
+      public class Solution {
+          public static String checkSession(int lastActive, int currentTime, int timeout) {
+              // Return "active", "expired", or "invalid"
+              return "invalid";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      using namespace std;
+
+      string checkSession(int lastActive, int currentTime, int timeout) {
+          // Return "active", "expired", or "invalid"
+          return "invalid";
+      }
+    starter_template_javascript: |
+      function checkSession(lastActive, currentTime, timeout) {
+          // Return "active", "expired", or "invalid"
+      }
+      module.exports = { checkSession };
+    test_cases:
+      - input: '{"last_active":0,"current_time":50,"timeout":100}'
+        expected: "active"
+        case_type: active
+      - input: '{"last_active":0,"current_time":200,"timeout":100}'
+        expected: "expired"
+        case_type: expired
+      - input: '{"last_active":100,"current_time":200,"timeout":100}'
+        expected: "active"
+        case_type: boundary_active
+      - input: '{"last_active":100,"current_time":201,"timeout":100}'
+        expected: "expired"
+        case_type: one_over_boundary
+      - input: '{"last_active":0,"current_time":0,"timeout":0}'
+        expected: "active"
+        case_type: zero_elapsed_zero_timeout
+      - input: '{"last_active":50,"current_time":10,"timeout":100}'
+        expected: "invalid"
+        case_type: current_before_last
+      - input: '{"last_active":0,"current_time":1,"timeout":0}'
+        expected: "expired"
+        case_type: zero_timeout_expired
+      - input: '{"last_active":1000,"current_time":1030,"timeout":30}'
+        expected: "active"
+        case_type: boundary_exact
+      - input: '{"last_active":1000,"current_time":1031,"timeout":30}'
+        expected: "expired"
+        case_type: one_past_boundary
+      - input: '{"last_active":0,"current_time":3600,"timeout":7200}'
+        expected: "active"
+        case_type: large_timeout
+
+  # ─────────────────────────────────────────────────────────────────────
+  - id: P050
+    title: Access Scope Validator
+    description: |
+      Determine whether a requested scope is covered by an allowed scopes list.
+      Scope hierarchy uses colon ":" as separator (e.g. "read:files:reports").
+      Granting rules:
+        - "granted" if requested appears exactly in allowed list, OR
+        - "granted" if a parent scope of requested appears in allowed
+          (e.g. allowed=["read"] grants "read:files" and "read:files:reports")
+        - "denied" otherwise
+      Parent scope check: split requested on ":", check all prefixes.
+      Empty allowed list → "denied".
+    category: Access Control
+    difficulty: Easy
+    supported_languages: [python, java, cpp, javascript]
+    version: 1
+    harness_type: typed
+    entry_function: validate_scope
+    input_spec: 'JSON object {"requested": "<scope>", "allowed": ["<scope1>",...]}'
+    output_spec: '"granted" or "denied"'
+    constraints: "Colon-separated hierarchy; parent grants children"
+    research_focus: "Scope-based access control, hierarchical matching"
+    security_relevance: high
+    signature_python: "def validate_scope(requested: str, allowed: list[str]) -> str:"
+    signature_java: "public static String validateScope(String requested, java.util.List<String> allowed)"
+    signature_cpp: "string validateScope(const string& requested, vector<string>& allowed)"
+    signature_javascript: "function validateScope(requested, allowed)"
+    starter_template_python: |
+      def validate_scope(requested: str, allowed: list[str]) -> str:
+          # Return "granted" or "denied"
+          pass
+    starter_template_java: |
+      import java.util.*;
+      public class Solution {
+          public static String validateScope(String requested, List<String> allowed) {
+              // Return "granted" or "denied"
+              return "denied";
+          }
+      }
+    starter_template_cpp: |
+      #include <string>
+      #include <vector>
+      using namespace std;
+
+      string validateScope(const string& requested, vector<string>& allowed) {
+          // Return "granted" or "denied"
+          return "denied";
+      }
+    starter_template_javascript: |
+      function validateScope(requested, allowed) {
+          // Return "granted" or "denied"
+      }
+      module.exports = { validateScope };
+    test_cases:
+      - input: '{"requested":"read","allowed":["read","write"]}'
+        expected: "granted"
+        case_type: exact_match
+      - input: '{"requested":"delete","allowed":["read","write"]}'
+        expected: "denied"
+        case_type: not_in_list
+      - input: '{"requested":"read:files","allowed":["read"]}'
+        expected: "granted"
+        case_type: parent_grants
+      - input: '{"requested":"write:db","allowed":["read"]}'
+        expected: "denied"
+        case_type: wrong_parent
+      - input: '{"requested":"admin:users","allowed":["admin"]}'
+        expected: "granted"
+        case_type: admin_parent
+      - input: '{"requested":"admin:users:delete","allowed":["admin:users"]}'
+        expected: "granted"
+        case_type: two_level_parent
+      - input: '{"requested":"read","allowed":[]}'
+        expected: "denied"
+        case_type: empty_allowed
+      - input: '{"requested":"read:config","allowed":["read:files","write"]}'
+        expected: "denied"
+        case_type: sibling_scope_denied
+      - input: '{"requested":"execute","allowed":["execute"]}'
+        expected: "granted"
+        case_type: exact_execute
+      - input: '{"requested":"a:b:c","allowed":["a"]}'
+        expected: "granted"
+        case_type: grandparent_grants

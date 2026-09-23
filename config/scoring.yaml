@@ -1,0 +1,61 @@
+# Scoring configuration (source of truth: docs/03_METRICS_AND_SCORING.md)
+# Weights and directions are configuration, NOT hard-coded in the frontend.
+
+# Primary overall score: weighted combination of approved research dimensions.
+overall_score:
+  dimensions:
+    - name: reliability
+      weight: 0.20
+      direction: higher_is_better
+      raw_field: reliability_pass_rate        # 0-100
+    - name: performance
+      weight: 0.15
+      direction: lower_is_better
+      raw_field: execution_time_ms
+    - name: maintainability
+      weight: 0.20
+      direction: higher_is_better
+      raw_field: maintainability_index         # 0-100 composite
+    - name: security
+      weight: 0.15
+      direction: lower_is_better
+      raw_field: security_findings_count
+    - name: complexity
+      weight: 0.15
+      direction: lower_is_better
+      raw_field: avg_cyclomatic_complexity
+    - name: code_quality
+      weight: 0.15
+      direction: lower_is_better
+      raw_field: quality_findings_count
+
+# Maintainability composite (docs/03 section 4).
+# Each raw component (lower-is-better) is inverted against fixed reference
+# bounds to a 0-100 component, then combined with the weights below.
+maintainability:
+  weights:
+    cyclomatic: 0.30
+    function_length: 0.20
+    nesting: 0.20
+    coupling: 0.30
+  reference:
+    cyclomatic: { min: 1, max: 15 }
+    function_length: { min: 1, max: 60 }
+    nesting: { min: 1, max: 8 }
+    coupling: { min: 0, max: 30 }
+
+# Normalization (docs/03 section 8) uses the dataset min/max across all
+# stored comparisons. Division by zero (all values identical) is handled
+# safely by assigning a neutral value of 50.
+normalization:
+  neutral_value: 50
+
+# A comparison is "comparable" (tied) when the overall-score difference is
+# within this epsilon.
+comparison:
+  comparable_epsilon: 0.5
+
+statistics:
+  test: wilcoxon_signed_rank
+  alpha: 0.05
+  min_paired_observations: 2
