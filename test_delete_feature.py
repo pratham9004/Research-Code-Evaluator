@@ -25,8 +25,8 @@ def check(name, cond, detail=""):
     symbol = "  [PASS]" if cond else "  [FAIL]"
     print(f"{symbol} {name}" + (f"  — {str(detail)[:80]}" if not cond and detail else ""))
 
-GOOD_CODE = "def solve(data: str) -> str:\n    n=int(data.strip()); f=1\n    [f:=f*i for i in range(2,n+1)]; return str(f)\n"
-HUMAN_CODE = "def solve(data: str) -> str:\n    import math\n    return str(math.factorial(int(data.strip())))\n"
+GOOD_CODE = "def max_subarray(nums):\n    best = current = nums[0]\n    for value in nums[1:]:\n        current = max(value, current + value)\n        best = max(best, current)\n    return best\n"
+HUMAN_CODE = "def max_subarray(nums):\n    return max(sum(nums[i:j]) for i in range(len(nums)) for j in range(i + 1, len(nums) + 1))\n"
 
 def submit(ai_name="TestAI"):
     r = client.post("/api/comparisons", json={
@@ -53,8 +53,8 @@ with SessionLocal() as s:
     initial_comps = count_table(s, models.Comparison)
 
 check("Setup: 6 comparisons created", initial_comps == 6, initial_comps)
-check("Setup: 6 problems exist", initial_probs == 6, initial_probs)
-check("Setup: 30 test cases exist", initial_tcs == 30, initial_tcs)
+check("Setup: 50 problems exist", initial_probs == 50, initial_probs)
+check("Setup: 500 test cases exist", initial_tcs == 500, initial_tcs)
 
 # ── Verify new submissions default to RESEARCH ──────────────────────────
 print("\n--- Test: new Submit & Compare = RESEARCH DATA ---")
@@ -167,8 +167,8 @@ check("GET /summary → 200", r_sum.status_code == 200)
 s_data = r_sum.json()
 check("Summary has deletable section", "deletable" in s_data)
 check("Summary has protected section", "protected" in s_data)
-check("Protected problems = 6", s_data["protected"]["problems"] == initial_probs)
-check("Protected test_cases = 30", s_data["protected"]["predefined_test_cases"] == initial_tcs)
+check("Protected problems = 50", s_data["protected"]["problems"] == initial_probs)
+check("Protected test_cases = 500", s_data["protected"]["predefined_test_cases"] == initial_tcs)
 
 # ── Test 7: Dashboard updates after deletion ─────────────────────────────
 print("\n--- Test 7: Dashboard updates correctly ---")
@@ -189,8 +189,8 @@ with SessionLocal() as s:
     check("comparison_results: 0 (no orphans)", count_table(s, models.ComparisonResult) == 0)
     check("statistical_results: 0 (no orphans)", count_table(s, models.StatisticalResult) == 0)
     check("preflight_results: 0 (no orphans)", count_table(s, models.PreflightResult) == 0)
-    check("FINAL: Problems intact = 6", count_table(s, models.Problem) == initial_probs)
-    check("FINAL: Test cases intact = 30", count_table(s, models.TestCase) == initial_tcs)
+    check("FINAL: Problems intact = 50", count_table(s, models.Problem) == initial_probs)
+    check("FINAL: Test cases intact = 500", count_table(s, models.TestCase) == initial_tcs)
 
 # ── Summary ──────────────────────────────────────────────────────────────
 print("\n" + "="*60)

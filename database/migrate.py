@@ -104,6 +104,43 @@ def migrate():
     except sqlite3.OperationalError as e:
         print(f"Error creating preflight_results: {e}")
 
+    # Missing executions must have NULL measurements, not fabricated zeroes.
+    cols = {row[1]: row for row in c.execute("PRAGMA table_info(execution_results)")}
+    if cols and (cols["pass_rate"][3] or cols["execution_time_ms"][3]):
+        c.execute("""
+            CREATE TABLE execution_results_nullable (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                comparison_id INTEGER NOT NULL,
+                code_variant VARCHAR NOT NULL,
+                total_test_cases INTEGER NOT NULL,
+                passed_count INTEGER NOT NULL,
+                failed_count INTEGER NOT NULL,
+                error_count INTEGER NOT NULL,
+                timeout_count INTEGER NOT NULL,
+                pass_rate FLOAT,
+                execution_time_ms FLOAT,
+                execution_status VARCHAR NOT NULL,
+                stdout TEXT,
+                stderr TEXT,
+                exit_code INTEGER,
+                FOREIGN KEY (comparison_id) REFERENCES comparisons(comparison_id)
+            )
+        """)
+        c.execute("""
+            INSERT INTO execution_results_nullable
+            SELECT id, comparison_id, code_variant, total_test_cases, passed_count,
+                   failed_count, error_count, timeout_count,
+                   CASE WHEN execution_status = 'MISSING' OR total_test_cases = 0 AND code_variant = 'HUMAN'
+                        THEN NULL ELSE pass_rate END,
+                   CASE WHEN execution_status = 'MISSING' OR total_test_cases = 0 AND code_variant = 'HUMAN'
+                        THEN NULL ELSE execution_time_ms END,
+                   execution_status, stdout, stderr, exit_code
+            FROM execution_results
+        """)
+        c.execute("DROP TABLE execution_results")
+        c.execute("ALTER TABLE execution_results_nullable RENAME TO execution_results")
+        print("Made missing execution measurements nullable; preserved execution rows")
+
     # Normalize existing pilot records
     try:
         c.execute("UPDATE comparisons SET experiment_type = 'PILOT' WHERE is_pilot = 1")

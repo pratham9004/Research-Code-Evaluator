@@ -72,7 +72,7 @@ export default function Reports({ onOpen, onOpenDetailed }: { onOpen: (id: numbe
       <div className="page-header">
         <div>
           <h2 className="page-title">Evaluations</h2>
-          <p className="page-sub">Completed AI vs Human comparisons</p>
+          <p className="page-sub">Research comparisons and stored raw execution datasets</p>
         </div>
         {items.length > 0 && (
           <button className="btn btn-secondary" onClick={handleExport} disabled={exporting}>
@@ -135,9 +135,11 @@ export default function Reports({ onOpen, onOpenDetailed }: { onOpen: (id: numbe
               it.overall_winner === 'HUMAN' ? 'status-badge--human' :
               'status-badge--neutral';
             const typeClass = it.is_pilot ? 'status-badge--pilot' : 'status-badge--research';
+            const status = it.status.toUpperCase();
+            const rawExecution = status === 'EXECUTION_ONLY';
             const statusClass =
-              it.status === 'COMPLETED' ? 'status-badge--completed' :
-              it.status === 'COMPARABLE' ? 'status-badge--comparable' :
+              status === 'COMPLETED' ? 'status-badge--completed' :
+              status === 'COMPARABLE' ? 'status-badge--comparable' :
               'status-badge--neutral';
             return (
               <div key={it.comparison_id} className={`evaluation-record ${isDeleting ? 'is-deleting' : ''}`}>
@@ -167,19 +169,19 @@ export default function Reports({ onOpen, onOpenDetailed }: { onOpen: (id: numbe
                 <div className="evaluation-record__middle">
                   <div className="evaluation-record__cell">
                     <span className="evaluation-record__label">AI Score</span>
-                    <span className="evaluation-record__value nowrap" style={{ textAlign: 'center' }}>{it.ai_overall != null ? it.ai_overall.toFixed(2) : '—'}</span>
+                    <span className="evaluation-record__value nowrap" style={{ textAlign: 'center' }}>{rawExecution ? 'Not calculated' : it.ai_overall != null ? it.ai_overall.toFixed(2) : '—'}</span>
                   </div>
                   <div className="evaluation-record__cell">
                     <span className="evaluation-record__label">Human Score</span>
-                    <span className="evaluation-record__value nowrap" style={{ textAlign: 'center' }}>{it.human_overall != null ? it.human_overall.toFixed(2) : '—'}</span>
+                    <span className="evaluation-record__value nowrap" style={{ textAlign: 'center' }}>{rawExecution ? 'Not calculated' : it.human_overall != null ? it.human_overall.toFixed(2) : '—'}</span>
                   </div>
                   <div className="evaluation-record__cell">
                     <span className="evaluation-record__label">Winner</span>
-                    <span className="evaluation-record__value"><span className={`status-badge ${winnerClass}`}>{it.overall_winner ?? '—'}</span></span>
+                    <span className="evaluation-record__value"><span className={`status-badge ${winnerClass}`}>{rawExecution ? 'Not calculated' : it.overall_winner ?? '—'}</span></span>
                   </div>
                   <div className="evaluation-record__cell">
                     <span className="evaluation-record__label">Status</span>
-                    <span className="evaluation-record__value"><span className={`status-badge ${statusClass}`}>{it.status}</span></span>
+                    <span className="evaluation-record__value"><span className={`status-badge ${statusClass}`}>{rawExecution ? 'RAW EXECUTION DATA' : status}</span></span>
                   </div>
                 </div>
 

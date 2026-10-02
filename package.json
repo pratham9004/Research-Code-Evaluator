@@ -1,0 +1,27 @@
+{
+  "name": "research-code-evaluator",
+  "version": "1.0.0",
+  "description": "A research instrument for the MCA study: **\"An Empirical Study on the Reliability, Security, and Maintainability of AI-Generated Code in Software Development.\"**",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pratham9004/Research-Code-Evaluator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/pratham9004/Research-Code-Evaluator/issues"
+  },
+  "homepage": "https://github.com/pratham9004/Research-Code-Evaluator#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3"
+  }
+}

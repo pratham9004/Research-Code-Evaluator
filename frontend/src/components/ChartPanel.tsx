@@ -1,4 +1,4 @@
-import { Chart, registerables } from 'chart.js';
+import { Chart, registerables, type ChartOptions } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 
 Chart.register(...registerables);
@@ -15,7 +15,7 @@ const commonLegend = {
     font: {
       family: 'IBM Plex Sans',
       size: 12,
-      weight: '600',
+      weight: 600,
     },
   },
 };
@@ -55,7 +55,7 @@ export function BarChart({ title, labels, ai, human, aiLabel = 'AI', humanLabel 
     ],
   };
 
-  const options = {
+  const options: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
     animation: { duration: 500, easing: 'easeOutQuart' },
@@ -71,16 +71,16 @@ export function BarChart({ title, labels, ai, human, aiLabel = 'AI', humanLabel 
         font: {
           family: 'IBM Plex Sans',
           size: 13,
-          weight: '700',
+          weight: 700,
         },
       },
     },
     scales: {
       x: {
-        grid: { display: false, drawBorder: false },
+        grid: { display: false },
         ticks: {
           color: '#54657A',
-          font: { family: 'IBM Plex Sans', size: 11, weight: '600' },
+          font: { family: 'IBM Plex Sans', size: 11, weight: 600 },
         },
       },
       y: {
@@ -88,7 +88,6 @@ export function BarChart({ title, labels, ai, human, aiLabel = 'AI', humanLabel 
         suggestedMax: 100,
         grid: {
           color: 'rgba(23,42,54,0.08)',
-          drawBorder: false,
         },
         ticks: {
           color: '#54657A',
@@ -108,7 +107,7 @@ export function BarChart({ title, labels, ai, human, aiLabel = 'AI', humanLabel 
 
 export function DoughnutChart({ title, labels, values, colors }: any) {
   const data = { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: '#ffffff', borderWidth: 2, hoverOffset: 4 }] };
-  const options = {
+  const options: ChartOptions<'doughnut'> = {
     responsive: true,
     maintainAspectRatio: false,
     cutout: '58%',
@@ -123,7 +122,7 @@ export function DoughnutChart({ title, labels, values, colors }: any) {
         font: {
           family: 'IBM Plex Sans',
           size: 13,
-          weight: '700',
+          weight: 700,
         },
       },
     },

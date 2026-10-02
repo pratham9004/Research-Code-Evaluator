@@ -1,0 +1,2108 @@
+Backup timestamp: 20260930_192711
+Repository: C:/Users/Pratham/OneDrive/Desktop/research-code-evaluator
+HEAD: 3c6bf87b9fd898d6acde912064a1a5ba35163ff9
+
+--- git status --short ---
+ M backend/api/comparisons.py
+ M backend/api/dashboard.py
+ M backend/db/__init__.py
+ M backend/db/models.py
+ M backend/db/seed.py
+ M backend/export/pdf_report.py
+ M backend/export/report.py
+ M backend/main.py
+ M database/migrate.py
+ D final_audit_p050.py
+ M frontend/src/components/ChartPanel.tsx
+ M frontend/src/pages/Dashboard.tsx
+ M frontend/src/pages/DetailedReport.tsx
+ M frontend/src/pages/ReportDetail.tsx
+ M frontend/src/pages/Reports.tsx
+ M frontend/src/pages/SolveProblems.tsx
+ M frontend/src/tests/SolveProblems.test.tsx
+ M frontend/src/types.ts
+ M test_delete_feature.py
+ D test_live_comparison.py
+ D test_p021_p030_live.py
+ D test_p031_p040_live.py
+ M tests/test_api.py
+ D validate_languages.py
+?? "AI VS HUMAN CODE/"
+?? Cpp_1_to_50_Tests.py
+?? FULL_PROJECT_ROOT_CAUSE_AND_FIX_REPORT.md
+?? JavaScript_1_to_50_Tests.py
+?? Java_1_to_50_Tests.py
+?? PYTHON_CHATGPT_HUMAN_TEST_REPORT.md
+?? Python_ChatGPT_Human_P001_P050_Tests.py
+?? backend/db/benchmark_import.py
+?? backup_snapshots/
+?? docs/FINAL_AI_CODE_GENERATION_SPECIFICATION.md
+?? docs/FINAL_SPECIFICATION_VALIDATION_REPORT.md
+?? docs/FULL_PROJECT_AUDIT_2026-09-27.md
+?? "earch instrument for evaluating AI-generated and human-written code across reliability, performance, maintainability, security, complexity, and code quality."
+?? frontend/src/tests/Dashboard.test.tsx
+?? frontend/src/tests/DetailedReport.test.tsx
+?? frontend/src/tests/Reports.test.tsx
+?? frontend/src/vite-env.d.ts
+?? python_chatgpt_human_p001_p050_summary.csv
+
+--- git diff --stat ---
+ backend/api/comparisons.py                |  28 ++--
+ backend/api/dashboard.py                  |  71 ++++++++--
+ backend/db/__init__.py                    |   2 +-
+ backend/db/models.py                      |   4 +-
+ backend/db/seed.py                        |  22 ++++
+ backend/export/pdf_report.py              |   2 +-
+ backend/export/report.py                  |  89 +++++++++----
+ backend/main.py                           |  17 ++-
+ database/migrate.py                       |  37 ++++++
+ final_audit_p050.py                       | 116 ----------------
+ frontend/src/components/ChartPanel.tsx    |  17 ++-
+ frontend/src/pages/Dashboard.tsx          |  48 +++++--
+ frontend/src/pages/DetailedReport.tsx     |  54 +++++---
+ frontend/src/pages/ReportDetail.tsx       |  10 +-
+ frontend/src/pages/Reports.tsx            |  16 ++-
+ frontend/src/pages/SolveProblems.tsx      |  48 ++++++-
+ frontend/src/tests/SolveProblems.test.tsx |   4 +-
+ frontend/src/types.ts                     |  49 +++++--
+ test_delete_feature.py                    |  16 +--
+ test_live_comparison.py                   | 177 -------------------------
+ test_p021_p030_live.py                    |  89 -------------
+ test_p031_p040_live.py                    | 105 ---------------
+ tests/test_api.py                         | 102 +++++++++++++-
+ validate_languages.py                     | 212 ------------------------------
+ 24 files changed, 512 insertions(+), 823 deletions(-)
+
+--- git diff --binary (tracked changes) ---
+diff --git a/backend/api/comparisons.py b/backend/api/comparisons.py
+index a592f8c..fd44ad0 100644
+--- a/backend/api/comparisons.py
++++ b/backend/api/comparisons.py
+@@ -539,10 +539,10 @@ def build_detailed_report(session, comparison_id: int) -> dict:
+     ai_quality = [f for f in ai_static if f.category == "code_quality"]
+     hu_quality = [f for f in hu_static if f.category == "code_quality"]
+ 
+-    ai_mi_components = _maintainability_components(ai_complexity, cfg)
+-    hu_mi_components = _maintainability_components(hu_complexity, cfg)
+-    ai_mi = round(sum(v["weighted_contribution"] for v in ai_mi_components.values()), 3)
+-    hu_mi = round(sum(v["weighted_contribution"] for v in hu_mi_components.values()), 3)
++    ai_mi_components = _maintainability_components(ai_complexity, cfg) if ai_complexity else {}
++    hu_mi_components = _maintainability_components(hu_complexity, cfg) if hu_complexity else {}
++    ai_mi = round(sum(v["weighted_contribution"] for v in ai_mi_components.values()), 3) if ai_mi_components else None
++    hu_mi = round(sum(v["weighted_contribution"] for v in hu_mi_components.values()), 3) if hu_mi_components else None
+ 
+     ai_overall = next((s.overall_score for s in ai_scores if s.overall_score is not None), None)
+     hu_overall = next((s.overall_score for s in hu_scores if s.overall_score is not None), None)
+@@ -606,6 +606,8 @@ def build_detailed_report(session, comparison_id: int) -> dict:
+     def tc_to_list(cases):
+         return [{
+             "test_case_id": c.test_case_id,
++            "input": (session.get(models.TestCase, c.test_case_id).input
++                      if session.get(models.TestCase, c.test_case_id) else None),
+             "status": c.status,
+             "actual_output": c.actual_output,
+             "expected_output": c.expected_output,
+@@ -640,9 +642,9 @@ def build_detailed_report(session, comparison_id: int) -> dict:
+         "executive_result": {
+             "ai_overall": ai_overall,
+             "human_overall": hu_overall,
+-            "difference": round((ai_overall or 0) - (hu_overall or 0), 3),
+-            "percentage_difference": round((ai_overall or 0) / (hu_overall or 1) * 100 - 100, 3) if hu_overall else None,
+-            "direction": next((r.direction for r in comp_rows if r.metric == "overall"), "COMPARABLE"),
++            "difference": round(ai_overall - hu_overall, 3) if ai_overall is not None and hu_overall is not None else None,
++            "percentage_difference": round((ai_overall - hu_overall) / abs(hu_overall) * 100, 3) if ai_overall is not None and hu_overall not in (None, 0) else None,
++            "direction": next((r.direction for r in comp_rows if r.metric == "overall"), None),
+             "neutral_statement": "This result applies only to this comparison and does not establish a universal superiority of AI-generated code.",
+         },
+         "six_dimensions": [
+@@ -660,9 +662,9 @@ def build_detailed_report(session, comparison_id: int) -> dict:
+                 "dimension": "overall",
+                 "ai_value": ai_overall,
+                 "human_value": hu_overall,
+-                "difference": round((ai_overall or 0) - (hu_overall or 0), 3),
+-                "direction": next((r.direction for r in comp_rows if r.metric == "overall"), "COMPARABLE"),
+-                "percentage_difference": round((ai_overall or 0) / (hu_overall or 1) * 100 - 100, 3) if hu_overall else None,
++                "difference": round(ai_overall - hu_overall, 3) if ai_overall is not None and hu_overall is not None else None,
++                "direction": next((r.direction for r in comp_rows if r.metric == "overall"), None),
++                "percentage_difference": round((ai_overall - hu_overall) / abs(hu_overall) * 100, 3) if ai_overall is not None and hu_overall not in (None, 0) else None,
+             }
+         ],
+         "preflight": {
+@@ -671,11 +673,11 @@ def build_detailed_report(session, comparison_id: int) -> dict:
+         },
+         "reliability": {
+             "ai": {
+-                **exec_summary(ai_er),
++                **(exec_summary(ai_er) or {}),
+                 "cases": tc_to_list(ai_cases),
+             },
+             "human": {
+-                **exec_summary(hu_er),
++                **(exec_summary(hu_er) or {}),
+                 "cases": tc_to_list(hu_cases),
+             },
+             "formula": "Pass Rate = (Passed Test Cases / Total Test Cases) Ã— 100",
+@@ -820,7 +822,7 @@ def build_detailed_report(session, comparison_id: int) -> dict:
+             "human_complexity": hu_complexity,
+         },
+         "interpretation": {
+-            "statement": f"This comparison shows that {'AI' if ai_overall and hu_overall and ai_overall > hu_overall else 'Human' if hu_overall and ai_overall and hu_overall > ai_overall else 'neither implementation'} achieved a higher overall composite score.",
++            "statement": (f"This comparison shows that {'AI' if ai_overall > hu_overall else 'Human' if hu_overall > ai_overall else 'both implementations'} achieved a higher overall composite score." if ai_overall is not None and hu_overall is not None else "An overall conclusion is unavailable because one or more required measurements are missing."),
+             "disclaimer": "This result applies only to this comparison and does not imply a universal conclusion.",
+         },
+     }
+diff --git a/backend/api/dashboard.py b/backend/api/dashboard.py
+index 6712a0b..584d5f9 100644
+--- a/backend/api/dashboard.py
++++ b/backend/api/dashboard.py
+@@ -22,27 +22,42 @@ METRIC_LABELS = {
+ def dashboard():
+     with SessionLocal() as session:
+         total_problems = session.query(models.Problem).count()
+-        compared = {pid for (pid,) in session.query(models.Comparison.problem_id).filter(models.Comparison.is_pilot == 0).distinct()}
++        valid_research = session.query(models.Comparison).filter(
++            models.Comparison.is_pilot == 0,
++            models.Comparison.status == "completed",
++        ).join(models.ComparisonResult, models.ComparisonResult.comparison_id == models.Comparison.comparison_id).filter(
++            models.ComparisonResult.metric == "overall",
++            models.ComparisonResult.ai_value.is_not(None),
++            models.ComparisonResult.human_value.is_not(None),
++        )
++        compared = {pid for (pid,) in valid_research.with_entities(models.Comparison.problem_id).distinct()}
+         problems_compared = len(compared)
+-        total_comparisons = session.query(models.Comparison).filter(models.Comparison.is_pilot == 0).count()
++        total_comparisons = valid_research.count()
++        research_record_count = session.query(models.Comparison).filter(models.Comparison.is_pilot == 0).count()
++        raw_execution_count = session.query(models.Comparison).filter(
++            models.Comparison.is_pilot == 0, models.Comparison.status == "execution_only"
++        ).count()
++        incomplete_comparisons = max(0, research_record_count - total_comparisons - raw_execution_count)
+         pilot_comparisons = session.query(models.Comparison).filter(models.Comparison.is_pilot == 1).count()
+ 
+         ai_systems = {}
+-        for (name,) in session.query(models.Comparison.ai_name).filter(models.Comparison.is_pilot == 0).distinct():
+-            cnt = session.query(models.Comparison).filter_by(ai_name=name, is_pilot=0).count()
++        for (name,) in valid_research.with_entities(models.Comparison.ai_name).distinct():
++            cnt = valid_research.filter(models.Comparison.ai_name == name).count()
+             ai_systems[name] = cnt
+ 
+         outcomes = {"AI": 0, "HUMAN": 0, "COMPARABLE": 0}
+         for (direction,) in session.query(models.ComparisonResult.direction).join(models.Comparison).filter(
+-            models.ComparisonResult.metric == "overall", models.Comparison.is_pilot == 0
++            models.ComparisonResult.metric == "overall", models.Comparison.is_pilot == 0,
++            models.Comparison.status == "completed", models.ComparisonResult.direction.is_not(None)
+         ).all():
+-            key = direction if direction in outcomes else "COMPARABLE"
+-            outcomes[key] += 1
++            if direction in outcomes:
++                outcomes[direction] += 1
+ 
+         metric_averages = {}
+         for metric in METRIC_LABELS:
+             rows = session.query(models.ComparisonResult).join(models.Comparison).filter(
+-                models.ComparisonResult.metric == metric, models.Comparison.is_pilot == 0).all()
++                models.ComparisonResult.metric == metric, models.Comparison.is_pilot == 0,
++                models.Comparison.status == "completed").all()
+             ai_vals = [r.ai_value for r in rows if r.ai_value is not None]
+             hu_vals = [r.human_value for r in rows if r.human_value is not None]
+             metric_averages[metric] = {
+@@ -55,7 +70,7 @@ def dashboard():
+ 
+         # Recent research comparisons (last 5)
+         recent = session.query(models.Comparison).filter(
+-            models.Comparison.is_pilot == 0
++            models.Comparison.is_pilot == 0, models.Comparison.status == "completed"
+         ).order_by(models.Comparison.comparison_id.desc()).limit(5).all()
+         recent_list = []
+         for c in recent:
+@@ -73,6 +88,41 @@ def dashboard():
+                 "human_overall": overall.human_value if overall else None,
+             })
+ 
++        # Execution-facing view for the dedicated ChatGPT/Human Python collection.
++        python_comparisons = session.query(models.Comparison).filter(
++            models.Comparison.language == "python",
++            models.Comparison.ai_name == "ChatGPT",
++            models.Comparison.is_pilot == 0,
++        ).order_by(models.Comparison.comparison_id.desc()).all()
++        by_problem = {}
++        for comparison in python_comparisons:
++            by_problem.setdefault(comparison.problem_id, comparison)
++        python_results = []
++        for problem in session.query(models.Problem).order_by(models.Problem.problem_id).all():
++            comparison = by_problem.get(problem.problem_id)
++            variants = {}
++            for variant in ("AI", "HUMAN"):
++                execution = session.query(models.ExecutionResult).filter_by(
++                    comparison_id=comparison.comparison_id, code_variant=variant
++                ).first() if comparison else None
++                variants[variant.lower()] = {
++                    "status": execution.execution_status if execution else "MISSING",
++                    "total": execution.total_test_cases if execution else 0,
++                    "passed": execution.passed_count if execution else 0,
++                    "failed": execution.failed_count if execution else 0,
++                    "errors": execution.error_count if execution else 0,
++                    "timeouts": execution.timeout_count if execution else 0,
++                    "execution_time_ms": execution.execution_time_ms if execution else None,
++                    "error_message": execution.stderr if execution and execution.execution_status in {"ERROR", "TIMEOUT"} else None,
++                }
++            python_results.append({
++                "problem_id": problem.problem_id,
++                "problem_name": problem.title,
++                "comparison_id": comparison.comparison_id if comparison else None,
++                "ai": variants["ai"],
++                "human": variants["human"],
++            })
++
+         return {
+             "has_data": has_data,
+             "kpis": {
+@@ -81,6 +131,8 @@ def dashboard():
+                 "problems_remaining": max(0, total_problems - problems_compared),
+                 "completion_percentage": round(problems_compared / total_problems * 100, 1) if total_problems else 0.0,
+                 "total_comparisons": total_comparisons,
++                "raw_execution_datasets": raw_execution_count,
++                "incomplete_comparisons": incomplete_comparisons,
+                 "pilot_comparisons": pilot_comparisons,
+                 "ai_systems_count": len(ai_systems),
+             },
+@@ -92,4 +144,5 @@ def dashboard():
+             },
+             "metric_averages": metric_averages,
+             "recent_comparisons": recent_list,
++            "python_benchmark_results": python_results,
+         }
+diff --git a/backend/db/__init__.py b/backend/db/__init__.py
+index bf83dc6..a1e3c4e 100644
+--- a/backend/db/__init__.py
++++ b/backend/db/__init__.py
+@@ -1 +1 @@
+-from backend.db import models  # noqa: F401
++from backend.db import benchmark_import, models  # noqa: F401
+diff --git a/backend/db/models.py b/backend/db/models.py
+index a46e855..883a027 100644
+--- a/backend/db/models.py
++++ b/backend/db/models.py
+@@ -96,8 +96,8 @@ class ExecutionResult(Base):
+     failed_count = Column(Integer, nullable=False)
+     error_count = Column(Integer, nullable=False)
+     timeout_count = Column(Integer, nullable=False)
+-    pass_rate = Column(Float, nullable=False)
+-    execution_time_ms = Column(Float, nullable=False)
++    pass_rate = Column(Float, nullable=True)
++    execution_time_ms = Column(Float, nullable=True)
+     execution_status = Column(String, nullable=False)  # PASS / FAIL / ERROR / TIMEOUT
+     stdout = Column(Text, nullable=True)
+     stderr = Column(Text, nullable=True)
+diff --git a/backend/db/seed.py b/backend/db/seed.py
+index ffeb314..bb7ce4b 100644
+--- a/backend/db/seed.py
++++ b/backend/db/seed.py
+@@ -96,6 +96,28 @@ def load_problems() -> int:
+                 existing = session.get(models.Problem, p["id"])
+                 if existing:
+                     _update_problem(existing, p)
++                    # Keep the database's ordinal test-case mapping aligned with
++                    # the official YAML, while preserving existing test_case_ids
++                    # (and therefore any stored research-result foreign keys).
++                    stored_cases = (session.query(models.TestCase)
++                                    .filter_by(problem_id=p["id"])
++                                    .order_by(models.TestCase.test_case_id).all())
++                    official_cases = p.get("test_cases", [])
++                    for index, tc in enumerate(official_cases):
++                        if index < len(stored_cases):
++                            stored = stored_cases[index]
++                            stored.input = str(tc["input"])
++                            stored.expected_output = str(tc["expected"])
++                            stored.case_type = tc.get("case_type", "functional")
++                            stored.version = p.get("version", 1)
++                        else:
++                            session.add(models.TestCase(
++                                problem_id=p["id"],
++                                input=str(tc["input"]),
++                                expected_output=str(tc["expected"]),
++                                case_type=tc.get("case_type", "functional"),
++                                version=p.get("version", 1),
++                            ))
+                 else:
+                     problem = _problem_from_dict(p)
+                     session.add(problem)
+diff --git a/backend/export/pdf_report.py b/backend/export/pdf_report.py
+index 739a2b2..c3f90e9 100644
+--- a/backend/export/pdf_report.py
++++ b/backend/export/pdf_report.py
+@@ -218,7 +218,7 @@ def generate_pdf_report(comparison_id: int) -> bytes:
+         ["OVERALL RESULT", ""],
+         [f"AI Overall Score", f"{ai_overall:.3f} / 100" if ai_overall is not None else "N/A"],
+         [f"Human Overall Score", f"{hu_overall:.3f} / 100" if hu_overall is not None else "N/A"],
+-        ["Difference (AI âˆ’ Human)", f"{round((ai_overall or 0) - (hu_overall or 0), 3):.3f}"],
++        ["Difference (AI âˆ’ Human)", f"{round(ai_overall - hu_overall, 3):.3f}" if ai_overall is not None and hu_overall is not None else "N/A"],
+         ["Result", winner_label],
+         ["Data Classification", data_classification],
+     ]
+diff --git a/backend/export/report.py b/backend/export/report.py
+index 5a17c34..7502bbf 100644
+--- a/backend/export/report.py
++++ b/backend/export/report.py
+@@ -563,7 +563,32 @@ def generate_research_report() -> io.BytesIO:
+             "direction", "percentage_difference", "statistical_status",
+         ], comp_out_rows)
+ 
+-        # Sheet 10: Statistical Results
++        # Sheet 10: AI vs Human Summary
++        summary_rows = []
++        for c in comparisons:
++            cid = c.comparison_id
++            overall = comp_map.get(cid, {}).get("overall")
++            if not overall:
++                continue
++            summary_rows.append({
++                "comparison_id": cid,
++                "problem_id": c.problem_id,
++                "problem_title": session.get(models.Problem, c.problem_id).title if session.get(models.Problem, c.problem_id) else c.problem_id,
++                "language": c.language,
++                "ai_name": c.ai_name,
++                "ai_overall": overall.ai_value,
++                "human_overall": overall.human_value,
++                "difference": overall.difference,
++                "direction": overall.direction,
++                "percentage_difference": overall.percentage_difference,
++            })
++        ws = wb.create_sheet("AI vs Human Summary")
++        _write_sheet(ws, [
++            "comparison_id", "problem_id", "problem_title", "language", "ai_name",
++            "ai_overall", "human_overall", "difference", "direction", "percentage_difference",
++        ], summary_rows)
++
++        # Sheet 11: Statistical Results
+         persisted_stats = session.query(models.StatisticalResult).order_by(models.StatisticalResult.comparison_id, models.StatisticalResult.metric).all()
+         stat_rows = []
+         for s in persisted_stats:
+@@ -756,7 +781,16 @@ def generate_research_report() -> io.BytesIO:
+                     cell.fill = cmp_fill
+ 
+         # â”€â”€ RESEARCH OVERVIEW (summary across research comparisons) â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-        research_comps = [c for c in comparisons if not c.is_pilot]
++        research_comps = [
++            c for c in comparisons
++            if not c.is_pilot
++            and c.status == "completed"
++            and comp_map.get(c.comparison_id, {}).get("overall") is not None
++            and comp_map[c.comparison_id]["overall"].ai_value is not None
++            and comp_map[c.comparison_id]["overall"].human_value is not None
++        ]
++        raw_execution_count = sum(1 for c in comparisons if not c.is_pilot and c.status == "execution_only")
++        incomplete_research_count = sum(1 for c in comparisons if not c.is_pilot) - len(research_comps) - raw_execution_count
+         ws_ov = wb.create_sheet("Research Overview")
+         ws_ov.cell(row=1, column=1, value="Research Code Evaluator â€” Dataset Overview")
+         ws_ov.cell(row=1, column=1).font = Font(bold=True, size=14, color="1e3a8a")
+@@ -765,16 +799,20 @@ def generate_research_report() -> io.BytesIO:
+         ws_ov.cell(row=4, column=1, value="Research Comparisons")
+         ws_ov.cell(row=4, column=2, value=len(research_comps))
+         ws_ov.cell(row=5, column=1, value="Pilot Comparisons")
+-        ws_ov.cell(row=5, column=2, value=len(comparisons) - len(research_comps))
++        ws_ov.cell(row=5, column=2, value=sum(1 for c in comparisons if c.is_pilot))
++        ws_ov.cell(row=6, column=1, value="Incomplete Research Records (excluded from scores)")
++        ws_ov.cell(row=6, column=2, value=incomplete_research_count)
+         problems_set = {c.problem_id for c in research_comps}
+-        ws_ov.cell(row=6, column=1, value="Problems Evaluated (Research)")
+-        ws_ov.cell(row=6, column=2, value=len(problems_set))
++        ws_ov.cell(row=7, column=1, value="Problems Evaluated (valid research pairs)")
++        ws_ov.cell(row=7, column=2, value=len(problems_set))
+         langs = {c.language for c in research_comps}
+-        ws_ov.cell(row=7, column=1, value="Languages Used")
+-        ws_ov.cell(row=7, column=2, value=", ".join(sorted(langs)))
++        ws_ov.cell(row=8, column=1, value="Languages Used (valid research pairs)")
++        ws_ov.cell(row=8, column=2, value=", ".join(sorted(langs)))
+         ai_systems = {c.ai_name for c in research_comps}
+-        ws_ov.cell(row=8, column=1, value="AI Systems")
+-        ws_ov.cell(row=8, column=2, value=", ".join(sorted(ai_systems)))
++        ws_ov.cell(row=9, column=1, value="AI Systems (valid research pairs)")
++        ws_ov.cell(row=9, column=2, value=", ".join(sorted(ai_systems)))
++        ws_ov.cell(row=10, column=1, value="Raw Execution Datasets (scores/winners not calculated)")
++        ws_ov.cell(row=10, column=2, value=raw_execution_count)
+ 
+         # Average AI vs Human overall scores (research only)
+         res_overall = [comp_map.get(c.comparison_id, {}).get("overall") for c in research_comps]
+@@ -783,24 +821,24 @@ def generate_research_report() -> io.BytesIO:
+         avg_ai = round(sum(ai_ovals) / len(ai_ovals), 3) if ai_ovals else None
+         avg_hu = round(sum(hu_ovals) / len(hu_ovals), 3) if hu_ovals else None
+         diff = round(avg_ai - avg_hu, 3) if avg_ai is not None and avg_hu is not None else None
+-        ws_ov.cell(row=10, column=1, value="Average AI Overall Score")
+-        ws_ov.cell(row=10, column=2, value=avg_ai)
+-        ws_ov.cell(row=11, column=1, value="Average Human Overall Score")
+-        ws_ov.cell(row=11, column=2, value=avg_hu)
+-        ws_ov.cell(row=12, column=1, value="Average Difference (AI - Human)")
+-        ws_ov.cell(row=12, column=2, value=diff)
++        ws_ov.cell(row=11, column=1, value="Average AI Overall Score")
++        ws_ov.cell(row=11, column=2, value=avg_ai)
++        ws_ov.cell(row=12, column=1, value="Average Human Overall Score")
++        ws_ov.cell(row=12, column=2, value=avg_hu)
++        ws_ov.cell(row=13, column=1, value="Average Difference (AI - Human)")
++        ws_ov.cell(row=13, column=2, value=diff)
+ 
+         ai_wins = sum(1 for r in res_overall if r and r.direction == "AI")
+         hu_wins = sum(1 for r in res_overall if r and r.direction == "HUMAN")
+         comp_count = sum(1 for r in res_overall if r and r.direction == "COMPARABLE")
+-        ws_ov.cell(row=14, column=1, value="Overall AI Wins")
+-        ws_ov.cell(row=14, column=2, value=ai_wins)
+-        ws_ov.cell(row=15, column=1, value="Overall Human Wins")
+-        ws_ov.cell(row=15, column=2, value=hu_wins)
+-        ws_ov.cell(row=16, column=1, value="Comparable")
+-        ws_ov.cell(row=16, column=2, value=comp_count)
+-        ws_ov.cell(row=18, column=1, value="Note")
+-        ws_ov.cell(row=18, column=2, value=(
++        ws_ov.cell(row=15, column=1, value="Overall AI Wins")
++        ws_ov.cell(row=15, column=2, value=ai_wins)
++        ws_ov.cell(row=16, column=1, value="Overall Human Wins")
++        ws_ov.cell(row=16, column=2, value=hu_wins)
++        ws_ov.cell(row=17, column=1, value="Comparable")
++        ws_ov.cell(row=17, column=2, value=comp_count)
++        ws_ov.cell(row=19, column=1, value="Note")
++        ws_ov.cell(row=19, column=2, value=(
+             "Single-comparison results do not establish universal superiority. "
+             "Statistical conclusions require sufficient paired observations."
+         ))
+@@ -849,12 +887,13 @@ def generate_research_report() -> io.BytesIO:
+                         if hi == lo:
+                             return round(100.0 if x <= lo else 0.0, 3)
+                         return round(max(0.0, min(100.0, (hi - x) / (hi - lo) * 100.0)), 3)
++                    required_raw = set(mapping.values())
+                     ai_maint_detail = " | ".join(
+                         f"{k}={comp_score(ai_cx, k):.1f}Ã—{mw[k]}" for k in mw
+-                    )
++                    ) if required_raw.issubset(ai_cx) else "N/A"
+                     hu_maint_detail = " | ".join(
+                         f"{k}={comp_score(hu_cx, k):.1f}Ã—{mw[k]}" for k in mw
+-                    )
++                    ) if required_raw.issubset(hu_cx) else "N/A"
+                 else:
+                     ai_maint_detail = ""
+                     hu_maint_detail = ""
+diff --git a/backend/main.py b/backend/main.py
+index 732d89c..e2b11d3 100644
+--- a/backend/main.py
++++ b/backend/main.py
+@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
+ 
+ from backend.config import FRONTEND_DIR
+ from backend.db.session import init_db, SessionLocal
+-from backend.db import models
++from backend.db import benchmark_import, models
+ from backend.db.seed import load_problems
+ from backend.api import problems, comparisons, dashboard, export
+ from backend.api import data_management
+@@ -20,9 +20,22 @@ from backend.scoring.scoring import load_config
+ 
+ @asynccontextmanager
+ async def lifespan(app: FastAPI):
+-    """Application lifespan: initialise DB and seed problem bank on startup."""
++    """Application lifespan: initialise DB, seed problems, and import benchmark results when needed."""
+     init_db()
+     load_problems()
++
++    with SessionLocal() as session:
++        has_comparisons = session.query(models.Comparison).first() is not None
++    if not has_comparisons:
++        # Do not bulk-import legacy multi-language JSON artifacts on startup.
++        # The active research workflow is the verified raw ChatGPT/Human Python
++        # collection; other saved benchmark files remain preserved on disk.
++        current_python_results = (
++            benchmark_import.BENCHMARK_RESULTS_DIR
++            / "python_chatgpt_human_p001_p050_execution_results.json"
++        )
++        if current_python_results.is_file():
++            benchmark_import.import_all_benchmark_results([current_python_results])
+     yield
+ 
+ 
+diff --git a/database/migrate.py b/database/migrate.py
+index abe4228..c07e688 100644
+--- a/database/migrate.py
++++ b/database/migrate.py
+@@ -104,6 +104,43 @@ def migrate():
+     except sqlite3.OperationalError as e:
+         print(f"Error creating preflight_results: {e}")
+ 
++    # Missing executions must have NULL measurements, not fabricated zeroes.
++    cols = {row[1]: row for row in c.execute("PRAGMA table_info(execution_results)")}
++    if cols and (cols["pass_rate"][3] or cols["execution_time_ms"][3]):
++        c.execute("""
++            CREATE TABLE execution_results_nullable (
++                id INTEGER PRIMARY KEY AUTOINCREMENT,
++                comparison_id INTEGER NOT NULL,
++                code_variant VARCHAR NOT NULL,
++                total_test_cases INTEGER NOT NULL,
++                passed_count INTEGER NOT NULL,
++                failed_count INTEGER NOT NULL,
++                error_count INTEGER NOT NULL,
++                timeout_count INTEGER NOT NULL,
++                pass_rate FLOAT,
++                execution_time_ms FLOAT,
++                execution_status VARCHAR NOT NULL,
++                stdout TEXT,
++                stderr TEXT,
++                exit_code INTEGER,
++                FOREIGN KEY (comparison_id) REFERENCES comparisons(comparison_id)
++            )
++        """)
++        c.execute("""
++            INSERT INTO execution_results_nullable
++            SELECT id, comparison_id, code_variant, total_test_cases, passed_count,
++                   failed_count, error_count, timeout_count,
++                   CASE WHEN execution_status = 'MISSING' OR total_test_cases = 0 AND code_variant = 'HUMAN'
++                        THEN NULL ELSE pass_rate END,
++                   CASE WHEN execution_status = 'MISSING' OR total_test_cases = 0 AND code_variant = 'HUMAN'
++                        THEN NULL ELSE execution_time_ms END,
++                   execution_status, stdout, stderr, exit_code
++            FROM execution_results
++        """)
++        c.execute("DROP TABLE execution_results")
++        c.execute("ALTER TABLE execution_results_nullable RENAME TO execution_results")
++        print("Made missing execution measurements nullable; preserved execution rows")
++
+     # Normalize existing pilot records
+     try:
+         c.execute("UPDATE comparisons SET experiment_type = 'PILOT' WHERE is_pilot = 1")
+diff --git a/final_audit_p050.py b/final_audit_p050.py
+deleted file mode 100644
+index fca0e78..0000000
+--- a/final_audit_p050.py
++++ /dev/null
+@@ -1,116 +0,0 @@
+-"""Final audit: 50 problems, 500 test cases, P001-P040 intact, live comparisons."""
+-import sys, os
+-sys.path.insert(0, os.path.dirname(__file__))
+-from fastapi.testclient import TestClient
+-from backend.main import app
+-
+-client = TestClient(app)
+-
+-# â”€â”€ 1. Count checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r = client.get("/api/problems")
+-assert r.status_code == 200
+-problems = r.json()
+-assert len(problems) == 50, f"Expected 50, got {len(problems)}"
+-print(f"  Total problems: {len(problems)} âœ“")
+-
+-# All IDs P001-P050 present
+-ids = {p["problem_id"] for p in problems}
+-for i in range(1, 51):
+-    pid = f"P0{i:02d}"
+-    assert pid in ids, f"{pid} missing!"
+-print("  All P001-P050 present âœ“")
+-
+-# P001-P040 untouched: spot-check a few
+-for pid in ["P001","P010","P020","P030","P040"]:
+-    r2 = client.get(f"/api/problems/{pid}")
+-    assert r2.status_code == 200
+-    p = r2.json()
+-    assert p["test_case_count"] == 10, f"{pid} has {p['test_case_count']} TCs"
+-print("  P001/P010/P020/P030/P040 test counts = 10 each âœ“")
+-
+-# P041-P050 present with 10 TCs each
+-for i in range(41, 51):
+-    pid = f"P0{i:02d}"
+-    r2 = client.get(f"/api/problems/{pid}")
+-    assert r2.status_code == 200
+-    p = r2.json()
+-    assert p["test_case_count"] == 10, f"{pid} has {p['test_case_count']} TCs"
+-    assert p["harness_type"] == "typed"
+-print("  P041-P050 all have 10 TCs and harness_type=typed âœ“")
+-
+-# â”€â”€ 2. Live comparison on P049 (Session Timeout) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-AI = """
+-def check_session(last_active, current_time, timeout):
+-    if current_time < last_active: return 'invalid'
+-    return 'expired' if (current_time - last_active) > timeout else 'active'
+-"""
+-HUMAN = """
+-def check_session(last_active, current_time, timeout):
+-    elapsed = current_time - last_active
+-    if elapsed < 0: return 'invalid'
+-    if elapsed > timeout: return 'expired'
+-    return 'active'
+-"""
+-r3 = client.post("/api/comparisons", json={
+-    "problem_id": "P049", "language": "python",
+-    "ai_name": "ChatGPT-FinalBatch",
+-    "ai_code": AI, "human_code": HUMAN,
+-    "experiment_type": "RESEARCH"
+-})
+-assert r3.status_code == 200, f"P049 failed: {r3.text[:200]}"
+-rep = r3.json()
+-assert rep["execution"]["ai"]["passed"] == 10
+-assert rep["execution"]["human"]["passed"] == 10
+-print(f"  P049 live comparison: AI 10/10, Human 10/10 âœ“  (cid={rep['comparison_id']})")
+-
+-# â”€â”€ 3. Live comparison on P045 (Top-K) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-AI2 = """
+-from collections import Counter
+-def top_k_frequent(nums, k):
+-    if not nums or k <= 0: return []
+-    c = Counter(nums)
+-    sorted_keys = sorted(c.keys(), key=lambda x: (-c[x], x))
+-    return sorted(sorted_keys[:k])
+-"""
+-HUMAN2 = """
+-def top_k_frequent(nums, k):
+-    if not nums or k <= 0: return []
+-    freq = {}
+-    for n in nums: freq[n] = freq.get(n, 0) + 1
+-    sorted_keys = sorted(freq.keys(), key=lambda x: (-freq[x], x))
+-    return sorted(sorted_keys[:k])
+-"""
+-r4 = client.post("/api/comparisons", json={
+-    "problem_id": "P045", "language": "python",
+-    "ai_name": "ChatGPT-FinalBatch",
+-    "ai_code": AI2, "human_code": HUMAN2,
+-    "experiment_type": "RESEARCH"
+-})
+-assert r4.status_code == 200, f"P045 failed: {r4.text[:200]}"
+-rep4 = r4.json()
+-assert rep4["execution"]["ai"]["passed"] == 10
+-assert rep4["execution"]["human"]["passed"] == 10
+-print(f"  P045 live comparison: AI 10/10, Human 10/10 âœ“  (cid={rep4['comparison_id']})")
+-
+-# â”€â”€ 4. Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r5 = client.get("/api/dashboard")
+-kpis = r5.json()["kpis"]
+-assert kpis["total_problems"] == 50
+-print(f"  Dashboard: {kpis['total_problems']} problems âœ“  comparisons: {kpis['total_comparisons']}")
+-
+-# â”€â”€ 5. Statistics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r6 = client.get("/api/statistics")
+-assert r6.status_code == 200
+-print("  Statistics API 200 âœ“")
+-
+-# â”€â”€ 6. No duplicate IDs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-pids = [p["problem_id"] for p in problems]
+-assert len(pids) == len(set(pids)), "DUPLICATE PROBLEM IDs FOUND!"
+-print("  No duplicate problem IDs âœ“")
+-
+-print("\n" + "="*60)
+-print("FINAL AUDIT PASSED")
+-print("  50 problems  |  500 test cases  |  P001-P040 intact")
+-print("  P041-P050 working  |  Live comparisons stored")
+-print("  Dashboard correct  |  No duplicates")
+-print("="*60)
+diff --git a/frontend/src/components/ChartPanel.tsx b/frontend/src/components/ChartPanel.tsx
+index 37c7fb7..2fa47dd 100644
+--- a/frontend/src/components/ChartPanel.tsx
++++ b/frontend/src/components/ChartPanel.tsx
+@@ -1,4 +1,4 @@
+-import { Chart, registerables } from 'chart.js';
++import { Chart, registerables, type ChartOptions } from 'chart.js';
+ import { Bar, Doughnut } from 'react-chartjs-2';
+ 
+ Chart.register(...registerables);
+@@ -15,7 +15,7 @@ const commonLegend = {
+     font: {
+       family: 'IBM Plex Sans',
+       size: 12,
+-      weight: '600',
++      weight: 600,
+     },
+   },
+ };
+@@ -55,7 +55,7 @@ export function BarChart({ title, labels, ai, human, aiLabel = 'AI', humanLabel
+     ],
+   };
+ 
+-  const options = {
++  const options: ChartOptions<'bar'> = {
+     responsive: true,
+     maintainAspectRatio: false,
+     animation: { duration: 500, easing: 'easeOutQuart' },
+@@ -71,16 +71,16 @@ export function BarChart({ title, labels, ai, human, aiLabel = 'AI', humanLabel
+         font: {
+           family: 'IBM Plex Sans',
+           size: 13,
+-          weight: '700',
++          weight: 700,
+         },
+       },
+     },
+     scales: {
+       x: {
+-        grid: { display: false, drawBorder: false },
++        grid: { display: false },
+         ticks: {
+           color: '#54657A',
+-          font: { family: 'IBM Plex Sans', size: 11, weight: '600' },
++          font: { family: 'IBM Plex Sans', size: 11, weight: 600 },
+         },
+       },
+       y: {
+@@ -88,7 +88,6 @@ export function BarChart({ title, labels, ai, human, aiLabel = 'AI', humanLabel
+         suggestedMax: 100,
+         grid: {
+           color: 'rgba(23,42,54,0.08)',
+-          drawBorder: false,
+         },
+         ticks: {
+           color: '#54657A',
+@@ -108,7 +107,7 @@ export function BarChart({ title, labels, ai, human, aiLabel = 'AI', humanLabel
+ 
+ export function DoughnutChart({ title, labels, values, colors }: any) {
+   const data = { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: '#ffffff', borderWidth: 2, hoverOffset: 4 }] };
+-  const options = {
++  const options: ChartOptions<'doughnut'> = {
+     responsive: true,
+     maintainAspectRatio: false,
+     cutout: '58%',
+@@ -123,7 +122,7 @@ export function DoughnutChart({ title, labels, values, colors }: any) {
+         font: {
+           family: 'IBM Plex Sans',
+           size: 13,
+-          weight: '700',
++          weight: 700,
+         },
+       },
+     },
+diff --git a/frontend/src/pages/Dashboard.tsx b/frontend/src/pages/Dashboard.tsx
+index 641508d..82595d2 100644
+--- a/frontend/src/pages/Dashboard.tsx
++++ b/frontend/src/pages/Dashboard.tsx
+@@ -1,6 +1,6 @@
+ import { useEffect, useState } from 'react';
+ import { api } from '../api';
+-import { DashboardData } from '../types';
++import { DashboardData, PythonBenchmarkVariant } from '../types';
+ import MetricCard from '../components/MetricCard';
+ import { BarChart } from '../components/ChartPanel';
+ 
+@@ -13,6 +13,34 @@ function WinnerPill({ winner }: { winner: string }) {
+   return <span style={styles[winner] ?? styles['COMPARABLE']}>{winner}</span>;
+ }
+ 
++function PythonBenchmarkTable({ rows }: { rows: NonNullable<DashboardData['python_benchmark_results']> }) {
++  const variant = (value: PythonBenchmarkVariant) => (
++    <td title={value.error_message || undefined}>
++      <strong>{value.status}</strong><br />
++      {value.passed}/{value.total} pass, {value.failed} fail, {value.errors} errors, {value.timeouts} timeouts<br />
++      {value.execution_time_ms == null ? 'N/A' : `${value.execution_time_ms.toFixed(2)} ms`}
++    </td>
++  );
++  return (
++    <>
++      <div className="section-title" style={{ marginTop: 24 }}>Python ChatGPT and Human Results (P001-P050)</div>
++      <p className="obs muted">Official test cases from the benchmark. Hover over a result to see its stored runtime error, if any.</p>
++      <div className="data-table-wrap">
++        <table className="data-table">
++          <thead><tr><th>Problem ID</th><th>Problem Name</th><th>ChatGPT</th><th>Human</th><th>Detailed Report ID</th></tr></thead>
++          <tbody>{rows.map((row) => (
++            <tr key={row.problem_id}>
++              <td>{row.problem_id}</td><td>{row.problem_name}</td>
++              {variant(row.ai)}{variant(row.human)}
++              <td>{row.comparison_id == null ? 'Not imported' : <a href={`/reports/${row.comparison_id}/detailed`}>{row.comparison_id}</a>}</td>
++            </tr>
++          ))}</tbody>
++        </table>
++      </div>
++    </>
++  );
++}
++
+ export default function Dashboard() {
+   const [data, setData] = useState<DashboardData | null>(null);
+   const [loading, setLoading] = useState(true);
+@@ -30,9 +58,13 @@ export default function Dashboard() {
+         <h2 className="page-title">Dashboard</h2>
+         <p className="page-sub">Research progress and analytics</p>
+         <div className="empty-state">
+-          <h3>No comparison data available yet.</h3>
++          <h3>{data.python_benchmark_results?.some((row) => row.comparison_id != null)
++            ? 'Python execution results are available; aggregate scores are not.'
++            : 'No valid paired comparison data available.'}</h3>
++          <p>{data.kpis.incomplete_comparisons} incomplete records are retained. Records without the complete score dimensions are excluded from aggregate outcome analytics.</p>
+           <p>Complete a comparison from <strong>Solve Problems</strong> to populate research analytics.</p>
+         </div>
++        {data.python_benchmark_results && <PythonBenchmarkTable rows={data.python_benchmark_results} />}
+       </div>
+     );
+   }
+@@ -60,10 +92,13 @@ export default function Dashboard() {
+         <MetricCard value={k.problems_remaining} label="Remaining" />
+         <MetricCard value={`${k.completion_percentage}%`} label="Completion" />
+         <MetricCard value={k.total_comparisons} label="Research Comparisons" />
++        <MetricCard value={k.raw_execution_datasets} label="Raw Execution Datasets" />
+         <MetricCard value={k.pilot_comparisons} label="Pilot Comparisons" />
+         <MetricCard value={k.ai_systems_count} label="AI Systems Used" />
+       </div>
+ 
++      {data.python_benchmark_results && <PythonBenchmarkTable rows={data.python_benchmark_results} />}
++
+       {totalOutcomes > 0 && (
+         <div className="section-card" style={{ marginBottom: 18 }}>
+           <div className="section-title" style={{ marginTop: 0, marginBottom: 12 }}>Overall Outcome Summary</div>
+@@ -97,12 +132,9 @@ export default function Dashboard() {
+                 <h3 className="chart-card__title">{m.label}</h3>
+                 <span className="chart-card__note">Mean values</span>
+               </div>
+-              <BarChart
+-                title=""
+-                labels={['AI', 'Human']}
+-                ai={[m.ai ?? 0]}
+-                human={[m.human ?? 0]}
+-              />
++              {m.ai !== null && m.human !== null
++                ? <BarChart title="" labels={['AI', 'Human']} ai={[m.ai]} human={[m.human]} />
++                : <p className="obs">No complete paired measurements available.</p>}
+             </div>
+           );
+         })}
+diff --git a/frontend/src/pages/DetailedReport.tsx b/frontend/src/pages/DetailedReport.tsx
+index 6e98ab3..60e3221 100644
+--- a/frontend/src/pages/DetailedReport.tsx
++++ b/frontend/src/pages/DetailedReport.tsx
+@@ -12,13 +12,23 @@ function Pill({ children, color }: { children: React.ReactNode; color?: string }
+   return <span className="pill" style={{ background: bg, color: textColor }}>{children}</span>;
+ }
+ 
++function displayDirection(direction: string | null | undefined): string {
++  return direction || 'UNAVAILABLE';
++}
++
+ export default function DetailedReport({ reportId, onBack }: { reportId: number; onBack: () => void }) {
+   const [report, setReport] = useState<DetailedReportData | null>(null);
+   const [loading, setLoading] = useState(true);
++  const [loadError, setLoadError] = useState<string | null>(null);
+   const [exportingPdf, setExportingPdf] = useState(false);
+ 
+   useEffect(() => {
+-    api.getDetailedComparison(reportId).then(setReport).finally(() => setLoading(false));
++    setLoading(true);
++    setLoadError(null);
++    api.getDetailedComparison(reportId)
++      .then(setReport)
++      .catch((e: Error) => setLoadError(e.message))
++      .finally(() => setLoading(false));
+   }, [reportId]);
+ 
+   async function handleExportPdf() {
+@@ -33,10 +43,11 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+   }
+ 
+   if (loading) return <div className="page"><p>Loading detailed reportâ€¦</p></div>;
+-  if (!report) return <div className="page"><p>Report not found.</p></div>;
++  if (!report) return <div className="page"><p>{loadError || 'Report not found.'}</p></div>;
+ 
+   const e = report.experiment;
+   const exec_ = report.executive_result;
++  const rawExecution = e.status.toLowerCase() === 'execution_only';
+ 
+   return (
+     <div className="page report-page">
+@@ -49,9 +60,9 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+         </div>
+       </div>
+ 
+-      <h2 className="page-title">Detailed Research Report #{e.comparison_id}</h2>
++      <h2 className="page-title">{rawExecution ? 'Detailed Raw Execution Report' : 'Detailed Research Report'} #{e.comparison_id}</h2>
+       <p className="page-sub">
+-        {e.problem_title} Â· {e.language} Â· AI: {e.ai_name}
++        {e.problem_id} â€” {e.problem_title} Â· {e.language} Â· AI: {e.ai_name} Â· reference: Human
+       </p>
+ 
+       {/* SECTION 1 â€” EXPERIMENT INFORMATION */}
+@@ -67,7 +78,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+             <tr><td>Language</td><td className="wrap-text nowrap">{e.language}</td></tr>
+             <tr><td>AI System</td><td className="wrap-text">{e.ai_name}</td></tr>
+             <tr><td>Experiment Type</td><td className="wrap-text"><Pill color={e.is_pilot ? 'human' : 'ai'}>{e.experiment_type}</Pill></td></tr>
+-            <tr><td>Status</td><td className="wrap-text"><Pill>{e.status}</Pill></td></tr>
++            <tr><td>Status</td><td className="wrap-text"><Pill>{rawExecution ? 'RAW EXECUTION DATA' : e.status}</Pill></td></tr>
+             <tr><td>Problem Version</td><td className="wrap-text">{e.problem_version ?? 'N/A'}</td></tr>
+             <tr><td>Test Case Version</td><td className="wrap-text">{e.test_case_version ?? 'N/A'}</td></tr>
+             <tr><td>Created At</td><td className="wrap-text">{e.created_at}</td></tr>
+@@ -84,16 +95,18 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+       {/* SECTION 2 â€” EXECUTIVE RESULT */}
+       <div className="card" style={{ marginBottom: 18 }}>
+         <SectionTitle>2. Executive Result</SectionTitle>
+-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
++        {rawExecution ? <p className="obs">This record contains raw execution data only. Comparative scores and an AI/Human winner have not been calculated.</p> : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+           <div className="kpi"><div className="value">{exec_.ai_overall?.toFixed(2) ?? 'N/A'}</div><div className="label">AI Overall Score /100</div></div>
+           <div className="kpi"><div className="value">{exec_.human_overall?.toFixed(2) ?? 'N/A'}</div><div className="label">Human Overall Score /100</div></div>
+           <div className="kpi"><div className="value">{(exec_.difference)?.toFixed(2) ?? 'N/A'}</div><div className="label">Difference</div></div>
+           <div className="kpi"><div className="value">{exec_.percentage_difference?.toFixed(2) ?? 'N/A'}%</div><div className="label">Percentage Difference</div></div>
+-        </div>
+-        <p style={{ marginTop: 12 }}>
+-          Overall comparison: <Pill color={exec_.direction.toLowerCase()}>{exec_.direction}</Pill>
+-        </p>
+-        <p className="obs muted">{exec_.neutral_statement}</p>
++        </div>}
++        {!rawExecution && <>
++          <p style={{ marginTop: 12 }}>
++            Overall comparison: <Pill color={exec_.direction?.toLowerCase()}>{displayDirection(exec_.direction)}</Pill>
++          </p>
++          <p className="obs muted">{exec_.neutral_statement}</p>
++        </>}
+       </div>
+ 
+       {/* SECTION 3 â€” PREFLIGHT VALIDATION */}
+@@ -109,7 +122,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+       </div>
+ 
+       {/* SECTION 4 â€” SIX-DIMENSION COMPARISON */}
+-      <div className="card" style={{ marginBottom: 18 }}>
++      {!rawExecution && <div className="card" style={{ marginBottom: 18 }}>
+         <SectionTitle>3. Six-Dimension Comparison</SectionTitle>
+         <table>
+           <thead><tr><th>Dimension</th><th className="ai-col">AI</th><th className="human-col">Human</th><th>Difference</th><th>Direction</th></tr></thead>
+@@ -120,12 +133,12 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+                 <td className="ai-col">{d.ai_value?.toFixed(3) ?? 'N/A'}</td>
+                 <td className="human-col">{d.human_value?.toFixed(3) ?? 'N/A'}</td>
+                 <td>{d.difference?.toFixed(3) ?? 'N/A'}</td>
+-                <td><Pill color={d.direction.toLowerCase()}>{d.direction}</Pill></td>
++                <td><Pill color={d.direction?.toLowerCase()}>{displayDirection(d.direction)}</Pill></td>
+               </tr>
+             ))}
+           </tbody>
+         </table>
+-      </div>
++      </div>}
+ 
+       {/* SECTION 4 â€” RELIABILITY */}
+       <div className="card" style={{ marginBottom: 18 }}>
+@@ -143,18 +156,19 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+                   <td>{report.reliability[variant].failed_count}</td>
+                   <td>{report.reliability[variant].error_count}</td>
+                   <td>{report.reliability[variant].timeout_count}</td>
+-                  <td>{report.reliability[variant].pass_rate.toFixed(2)}%</td>
++                  <td>{report.reliability[variant].pass_rate?.toFixed(2) ?? 'N/A'}%</td>
+                 </tr>
+               </tbody>
+             </table>
+             <div style={{ marginTop: 8 }}>
+               <strong>Test Case Results:</strong>
+               <table>
+-                <thead><tr><th>#</th><th>Status</th><th>Time (ms)</th><th>Actual</th><th>Expected</th><th>Error</th></tr></thead>
++                <thead><tr><th>Test Case ID</th><th>Input</th><th>Status</th><th>Time (ms)</th><th>Actual</th><th>Expected</th><th>Error</th></tr></thead>
+                 <tbody>
+                   {report.reliability[variant].cases.map((c, i) => (
+                     <tr key={i}>
+                       <td>{c.test_case_id}</td>
++                      <td className="wrap-text">{c.input ?? 'N/A'}</td>
+                       <td><Pill color={c.status === 'PASS' ? 'pass' : c.status === 'ERROR' ? 'err' : c.status === 'TIMEOUT' ? 'fail' : 'fail'}>{c.status}</Pill></td>
+                       <td>{c.execution_time_ms ?? 'N/A'}</td>
+                       <td>{c.actual_output}</td>
+@@ -183,6 +197,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+         </table>
+       </div>
+ 
++      {!rawExecution && <>
+       {/* SECTION 6 â€” MAINTAINABILITY */}
+       <div className="card" style={{ marginBottom: 18 }}>
+         <SectionTitle>6. Maintainability</SectionTitle>
+@@ -190,7 +205,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+         {(['ai', 'human'] as const).map((variant) => (
+           <div key={variant} style={{ marginBottom: 12 }}>
+             <div className="section-title" style={{ marginTop: 0 }}>{variant === 'ai' ? 'AI' : 'Human'} Maintainability</div>
+-            <p><strong>Final Score: {report.maintainability[variant].final_score.toFixed(3)} /100</strong></p>
++            <p><strong>Final Score: {report.maintainability[variant].final_score?.toFixed(3) ?? 'N/A'} /100</strong></p>
+             <table>
+               <thead><tr><th>Component</th><th>Raw Value</th><th>Ref Min</th><th>Ref Max</th><th>Normalized</th><th>Weight</th><th>Contribution</th></tr></thead>
+               <tbody>
+@@ -341,7 +356,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+                 <td className="human-col">{r.human_value?.toFixed(3) ?? 'N/A'}</td>
+                 <td>{r.difference?.toFixed(3) ?? 'N/A'}</td>
+                 <td>{r.percentage_difference?.toFixed(2) ?? 'N/A'}%</td>
+-                <td><Pill color={r.direction.toLowerCase()}>{r.direction}</Pill></td>
++                <td><Pill color={r.direction?.toLowerCase()}>{displayDirection(r.direction)}</Pill></td>
+               </tr>
+             ))}
+           </tbody>
+@@ -374,6 +389,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+           </table>
+         )}
+       </div>
++      </>}
+ 
+       {/* SECTION 14 â€” TEST CASE RESULTS */}
+       <div className="card" style={{ marginBottom: 18 }}>
+@@ -398,7 +414,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
+       {/* SECTION 15 â€” INTERPRETATION */}
+       <div className="card" style={{ marginBottom: 18 }}>
+         <SectionTitle>15. Research Interpretation</SectionTitle>
+-        <p>{report.interpretation.statement}</p>
++        <p>{rawExecution ? 'Raw execution data only; no aggregate scores or winner are available for this record.' : report.interpretation.statement}</p>
+         <p className="obs muted">{report.interpretation.disclaimer}</p>
+       </div>
+     </div>
+diff --git a/frontend/src/pages/ReportDetail.tsx b/frontend/src/pages/ReportDetail.tsx
+index 0d0336b..434f0ab 100644
+--- a/frontend/src/pages/ReportDetail.tsx
++++ b/frontend/src/pages/ReportDetail.tsx
+@@ -22,13 +22,19 @@ function observation(metric: string, direction: string): string {
+ export default function ReportDetail({ reportId, onBack }: { reportId: number; onBack: () => void }) {
+   const [report, setReport] = useState<Report | null>(null);
+   const [loading, setLoading] = useState(true);
++  const [loadError, setLoadError] = useState<string | null>(null);
+ 
+   useEffect(() => {
+-    api.getComparison(reportId).then(setReport).finally(() => setLoading(false));
++    setLoading(true);
++    setLoadError(null);
++    api.getComparison(reportId)
++      .then(setReport)
++      .catch((e: Error) => setLoadError(e.message))
++      .finally(() => setLoading(false));
+   }, [reportId]);
+ 
+   if (loading) return <div className="page"><p>Loading reportâ€¦</p></div>;
+-  if (!report) return <div className="page"><p>Report not found.</p></div>;
++  if (!report) return <div className="page"><p>{loadError || 'Report not found.'}</p></div>;
+ 
+   const cmp = (m: string) => report.comparison.find((c) => c.metric === m);
+ 
+diff --git a/frontend/src/pages/Reports.tsx b/frontend/src/pages/Reports.tsx
+index a82c398..d31245c 100644
+--- a/frontend/src/pages/Reports.tsx
++++ b/frontend/src/pages/Reports.tsx
+@@ -72,7 +72,7 @@ export default function Reports({ onOpen, onOpenDetailed }: { onOpen: (id: numbe
+       <div className="page-header">
+         <div>
+           <h2 className="page-title">Evaluations</h2>
+-          <p className="page-sub">Completed AI vs Human comparisons</p>
++          <p className="page-sub">Research comparisons and stored raw execution datasets</p>
+         </div>
+         {items.length > 0 && (
+           <button className="btn btn-secondary" onClick={handleExport} disabled={exporting}>
+@@ -135,9 +135,11 @@ export default function Reports({ onOpen, onOpenDetailed }: { onOpen: (id: numbe
+               it.overall_winner === 'HUMAN' ? 'status-badge--human' :
+               'status-badge--neutral';
+             const typeClass = it.is_pilot ? 'status-badge--pilot' : 'status-badge--research';
++            const status = it.status.toUpperCase();
++            const rawExecution = status === 'EXECUTION_ONLY';
+             const statusClass =
+-              it.status === 'COMPLETED' ? 'status-badge--completed' :
+-              it.status === 'COMPARABLE' ? 'status-badge--comparable' :
++              status === 'COMPLETED' ? 'status-badge--completed' :
++              status === 'COMPARABLE' ? 'status-badge--comparable' :
+               'status-badge--neutral';
+             return (
+               <div key={it.comparison_id} className={`evaluation-record ${isDeleting ? 'is-deleting' : ''}`}>
+@@ -167,19 +169,19 @@ export default function Reports({ onOpen, onOpenDetailed }: { onOpen: (id: numbe
+                 <div className="evaluation-record__middle">
+                   <div className="evaluation-record__cell">
+                     <span className="evaluation-record__label">AI Score</span>
+-                    <span className="evaluation-record__value nowrap" style={{ textAlign: 'center' }}>{it.ai_overall != null ? it.ai_overall.toFixed(2) : 'â€”'}</span>
++                    <span className="evaluation-record__value nowrap" style={{ textAlign: 'center' }}>{rawExecution ? 'Not calculated' : it.ai_overall != null ? it.ai_overall.toFixed(2) : 'â€”'}</span>
+                   </div>
+                   <div className="evaluation-record__cell">
+                     <span className="evaluation-record__label">Human Score</span>
+-                    <span className="evaluation-record__value nowrap" style={{ textAlign: 'center' }}>{it.human_overall != null ? it.human_overall.toFixed(2) : 'â€”'}</span>
++                    <span className="evaluation-record__value nowrap" style={{ textAlign: 'center' }}>{rawExecution ? 'Not calculated' : it.human_overall != null ? it.human_overall.toFixed(2) : 'â€”'}</span>
+                   </div>
+                   <div className="evaluation-record__cell">
+                     <span className="evaluation-record__label">Winner</span>
+-                    <span className="evaluation-record__value"><span className={`status-badge ${winnerClass}`}>{it.overall_winner ?? 'â€”'}</span></span>
++                    <span className="evaluation-record__value"><span className={`status-badge ${winnerClass}`}>{rawExecution ? 'Not calculated' : it.overall_winner ?? 'â€”'}</span></span>
+                   </div>
+                   <div className="evaluation-record__cell">
+                     <span className="evaluation-record__label">Status</span>
+-                    <span className="evaluation-record__value"><span className={`status-badge ${statusClass}`}>{it.status}</span></span>
++                    <span className="evaluation-record__value"><span className={`status-badge ${statusClass}`}>{rawExecution ? 'RAW EXECUTION DATA' : status}</span></span>
+                   </div>
+                 </div>
+ 
+diff --git a/frontend/src/pages/SolveProblems.tsx b/frontend/src/pages/SolveProblems.tsx
+index 3ae7a2d..c4c8bf6 100644
+--- a/frontend/src/pages/SolveProblems.tsx
++++ b/frontend/src/pages/SolveProblems.tsx
+@@ -11,6 +11,52 @@ const LANG_LABELS: Record<string, string> = {
+   javascript: 'JavaScript',
+ };
+ 
++const DIMENSION_KEYWORDS: Record<string, string[]> = {
++  Reliability: ['correctness', 'validation', 'boundary', 'parsing', 'regex', 'logic', 'matching', 'expected', 'stack usage', 'merge logic', 'output', 'session', 'scope', 'token', 'comparison', 'tie-breaking', 'selection', 'search', 'sum', 'sorting'],
++  Performance: ['dynamic programming', 'hash map', 'frequency', 'priority', 'sorting', 'lookup', 'iteration', 'complexity', 'o(log n)', 'overflow', 'summation', 'bounded', 'selection', 'lookup', 'performance'],
++  Maintainability: ['maintainability', 'structure', 'clarity', 'readability', 'organization', 'code quality', 'modular', 'cleanliness'],
++  Security: ['security', 'injection', 'sanitization', 'allowlist', 'escaping', 'xss', 'path traversal', 'shell', 'sql', 'permission', 'access control', 'rbac', 'session management', 'scope-based', 'environment variable', 'token validation', 'safe parsing', 'output encoding'],
++  Complexity: ['complexity', 'o(log n)', 'algorithmic', 'time complexity', 'space complexity'],
++  'Code Quality': ['code quality', 'readability', 'maintainability', 'quality', 'clarity'],
++};
++
++function inferResearchDimensions(problem: Problem): string[] {
++  const source = [
++    problem.title,
++    problem.description,
++    problem.category,
++    problem.research_focus ?? '',
++    problem.security_relevance ?? '',
++    problem.input_spec ?? '',
++    problem.output_spec ?? '',
++    problem.constraints ?? '',
++  ].join(' ').toLowerCase();
++
++  const matches: string[] = [];
++  for (const [dimension, keywords] of Object.entries(DIMENSION_KEYWORDS)) {
++    if (keywords.some((keyword) => source.includes(keyword.toLowerCase()))) {
++      matches.push(dimension);
++    }
++  }
++
++  if (matches.length === 0) {
++    return ['Reliability'];
++  }
++
++  if (problem.security_relevance && problem.security_relevance.toLowerCase() === 'high' && !matches.includes('Security')) {
++    matches.push('Security');
++  }
++
++  const ordered = ['Reliability', 'Performance', 'Maintainability', 'Security', 'Complexity', 'Code Quality'];
++  return ordered.filter((dimension) => matches.includes(dimension));
++}
++
++function getProblemDisplayLabel(problem: Problem): string {
++  const dimensions = inferResearchDimensions(problem);
++  const label = dimensions.join(' + ');
++  return `${problem.problem_id} â€“ ${problem.title} (${label})`;
++}
++
+ /** Return the per-language starter template for the selected problem+language. */
+ function getStarter(p: Problem, lang: string): string {
+   if (lang === 'java' && p.starter_template_java) return p.starter_template_java;
+@@ -177,7 +223,7 @@ export default function SolveProblems({ onReport }: { onReport: (r: Report) => v
+           <option value="">â€” Select a problem â€”</option>
+           {problems.map((p) => (
+             <option key={p.problem_id} value={p.problem_id}>
+-              {p.problem_id} Â· {p.title} ({p.difficulty})
++              {getProblemDisplayLabel(p)}
+             </option>
+           ))}
+         </select>
+diff --git a/frontend/src/tests/SolveProblems.test.tsx b/frontend/src/tests/SolveProblems.test.tsx
+index 5626427..fa4022e 100644
+--- a/frontend/src/tests/SolveProblems.test.tsx
++++ b/frontend/src/tests/SolveProblems.test.tsx
+@@ -15,6 +15,8 @@ const problems = [
+     entry_function: 'solve',
+     compared: false,
+     test_case_count: 5,
++    research_focus: 'Correctness, algorithmic approach',
++    security_relevance: 'low',
+   },
+ ];
+ 
+@@ -28,7 +30,7 @@ vi.mock('../api', () => ({
+ describe('Solve Problems smoke test', () => {
+   it('validates code inputs before submitting', async () => {
+     render(<SolveProblems onReport={() => {}} />);
+-    await screen.findByRole('option', { name: /Two Sum/ });
++    await screen.findByRole('option', { name: /P001.*Two Sum.*Reliability/i });
+     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'P001' } });
+     fireEvent.click(await screen.findByText('Submit & Compare'));
+     expect(await screen.findByText('Both AI and Human code are required.')).toBeTruthy();
+diff --git a/frontend/src/types.ts b/frontend/src/types.ts
+index a905e15..eaa97ac 100644
+--- a/frontend/src/types.ts
++++ b/frontend/src/types.ts
+@@ -58,6 +58,8 @@ export interface DashboardData {
+     problems_remaining: number;
+     completion_percentage: number;
+     total_comparisons: number;
++    raw_execution_datasets: number;
++    incomplete_comparisons: number;
+     pilot_comparisons: number;
+     ai_systems_count: number;
+   };
+@@ -74,14 +76,32 @@ export interface DashboardData {
+     ai_overall: number | null;
+     human_overall: number | null;
+   }>;
++  python_benchmark_results?: Array<{
++    problem_id: string;
++    problem_name: string;
++    comparison_id: number | null;
++    ai: PythonBenchmarkVariant;
++    human: PythonBenchmarkVariant;
++  }>;
++}
++
++export interface PythonBenchmarkVariant {
++  status: string;
++  total: number;
++  passed: number;
++  failed: number;
++  errors: number;
++  timeouts: number;
++  execution_time_ms: number | null;
++  error_message: string | null;
+ }
+ 
+ export interface ComparisonMetric {
+   metric: string;
+   ai_value: number;
+   human_value: number;
+-  difference: number;
+-  direction: string;
++  difference: number | null;
++  direction: string | null;
+   percentage_difference: number | null;
+   statistical_status: string;
+ }
+@@ -118,6 +138,7 @@ export interface StaticAnalysisFinding {
+ 
+ export interface TestCaseResult {
+   test_case_id: number;
++  input?: string | null;
+   status: string;
+   actual_output: string | null;
+   expected_output: string | null;
+@@ -131,8 +152,8 @@ export interface TestCaseResult {
+ 
+ export interface ExecutionSummary {
+   execution_status: string;
+-  execution_time_ms: number;
+-  pass_rate: number;
++  execution_time_ms: number | null;
++  pass_rate: number | null;
+   total_test_cases: number;
+   passed_count: number;
+   failed_count: number;
+@@ -177,8 +198,8 @@ export interface Report {
+   scores: {
+     ai: ScoreDimension[];
+     human: ScoreDimension[];
+-    ai_overall: number;
+-    human_overall: number;
++    ai_overall: number | null;
++    human_overall: number | null;
+   };
+   comparison: ComparisonMetric[];
+ }
+@@ -208,9 +229,9 @@ export interface DetailedReport {
+   executive_result: {
+     ai_overall: number | null;
+     human_overall: number | null;
+-    difference: number;
++    difference: number | null;
+     percentage_difference: number | null;
+-    direction: string;
++    direction: string | null;
+     neutral_statement: string;
+   };
+   six_dimensions: Array<{
+@@ -218,7 +239,7 @@ export interface DetailedReport {
+     ai_value: number | null;
+     human_value: number | null;
+     difference: number | null;
+-    direction: string;
++    direction: string | null;
+     percentage_difference: number | null;
+   }>;
+   preflight: {
+@@ -237,8 +258,8 @@ export interface DetailedReport {
+     note: string;
+   };
+   maintainability: {
+-    ai: { components: Record<string, MaintainabilityComponent>; final_score: number };
+-    human: { components: Record<string, MaintainabilityComponent>; final_score: number };
++    ai: { components: Record<string, MaintainabilityComponent>; final_score: number | null };
++    human: { components: Record<string, MaintainabilityComponent>; final_score: number | null };
+     formula: string;
+     reference_bounds: Record<string, { min: number; max: number }>;
+     weights: Record<string, number>;
+@@ -246,7 +267,7 @@ export interface DetailedReport {
+   security: {
+     ai: { findings: SecurityFinding[]; count: number; tool_status: string | null };
+     human: { findings: SecurityFinding[]; count: number; tool_status: string | null };
+-    direction: string;
++    direction: string | null;
+     note: string;
+   };
+   complexity: {
+@@ -254,7 +275,7 @@ export interface DetailedReport {
+     human: Record<string, number>;
+     normalized_ai: number | null;
+     normalized_human: number | null;
+-    direction: string;
++    direction: string | null;
+     note: string;
+   };
+   code_quality: {
+@@ -262,7 +283,7 @@ export interface DetailedReport {
+     human: { findings: StaticAnalysisFinding[]; count: number; tool_status: string | null };
+     normalized_ai: number | null;
+     normalized_human: number | null;
+-    direction: string;
++    direction: string | null;
+     note: string;
+   };
+   scoring_calculation: {
+diff --git a/test_delete_feature.py b/test_delete_feature.py
+index f0c7d7f..9871f52 100644
+--- a/test_delete_feature.py
++++ b/test_delete_feature.py
+@@ -25,8 +25,8 @@ def check(name, cond, detail=""):
+     symbol = "  [PASS]" if cond else "  [FAIL]"
+     print(f"{symbol} {name}" + (f"  â€” {str(detail)[:80]}" if not cond and detail else ""))
+ 
+-GOOD_CODE = "def solve(data: str) -> str:\n    n=int(data.strip()); f=1\n    [f:=f*i for i in range(2,n+1)]; return str(f)\n"
+-HUMAN_CODE = "def solve(data: str) -> str:\n    import math\n    return str(math.factorial(int(data.strip())))\n"
++GOOD_CODE = "def max_subarray(nums):\n    best = current = nums[0]\n    for value in nums[1:]:\n        current = max(value, current + value)\n        best = max(best, current)\n    return best\n"
++HUMAN_CODE = "def max_subarray(nums):\n    return max(sum(nums[i:j]) for i in range(len(nums)) for j in range(i + 1, len(nums) + 1))\n"
+ 
+ def submit(ai_name="TestAI"):
+     r = client.post("/api/comparisons", json={
+@@ -53,8 +53,8 @@ with SessionLocal() as s:
+     initial_comps = count_table(s, models.Comparison)
+ 
+ check("Setup: 6 comparisons created", initial_comps == 6, initial_comps)
+-check("Setup: 6 problems exist", initial_probs == 6, initial_probs)
+-check("Setup: 30 test cases exist", initial_tcs == 30, initial_tcs)
++check("Setup: 50 problems exist", initial_probs == 50, initial_probs)
++check("Setup: 500 test cases exist", initial_tcs == 500, initial_tcs)
+ 
+ # â”€â”€ Verify new submissions default to RESEARCH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ print("\n--- Test: new Submit & Compare = RESEARCH DATA ---")
+@@ -167,8 +167,8 @@ check("GET /summary â†’ 200", r_sum.status_code == 200)
+ s_data = r_sum.json()
+ check("Summary has deletable section", "deletable" in s_data)
+ check("Summary has protected section", "protected" in s_data)
+-check("Protected problems = 6", s_data["protected"]["problems"] == initial_probs)
+-check("Protected test_cases = 30", s_data["protected"]["predefined_test_cases"] == initial_tcs)
++check("Protected problems = 50", s_data["protected"]["problems"] == initial_probs)
++check("Protected test_cases = 500", s_data["protected"]["predefined_test_cases"] == initial_tcs)
+ 
+ # â”€â”€ Test 7: Dashboard updates after deletion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ print("\n--- Test 7: Dashboard updates correctly ---")
+@@ -189,8 +189,8 @@ with SessionLocal() as s:
+     check("comparison_results: 0 (no orphans)", count_table(s, models.ComparisonResult) == 0)
+     check("statistical_results: 0 (no orphans)", count_table(s, models.StatisticalResult) == 0)
+     check("preflight_results: 0 (no orphans)", count_table(s, models.PreflightResult) == 0)
+-    check("FINAL: Problems intact = 6", count_table(s, models.Problem) == initial_probs)
+-    check("FINAL: Test cases intact = 30", count_table(s, models.TestCase) == initial_tcs)
++    check("FINAL: Problems intact = 50", count_table(s, models.Problem) == initial_probs)
++    check("FINAL: Test cases intact = 500", count_table(s, models.TestCase) == initial_tcs)
+ 
+ # â”€â”€ Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ print("\n" + "="*60)
+diff --git a/test_live_comparison.py b/test_live_comparison.py
+deleted file mode 100644
+index 7d5d6d7..0000000
+--- a/test_live_comparison.py
++++ /dev/null
+@@ -1,177 +0,0 @@
+-"""
+-Full AI-vs-Human comparison workflow test through the live FastAPI application.
+-Tests P001-P020 benchmark (20 problems, 200 test cases).
+-"""
+-import sys, os, json
+-sys.path.insert(0, os.path.dirname(__file__))
+-
+-from fastapi.testclient import TestClient
+-from backend.main import app
+-
+-client = TestClient(app)
+-
+-# â”€â”€ 1. Verify problems loaded â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-print("=== Step 1: Problems API ===")
+-r = client.get("/api/problems")
+-assert r.status_code == 200, f"Problems API failed: {r.status_code}"
+-problems = r.json()
+-print(f"  Problems loaded: {len(problems)}")
+-assert len(problems) == 30, f"Expected 30 problems, got {len(problems)}"
+-p001 = next(p for p in problems if p["problem_id"] == "P001")
+-p011 = next(p for p in problems if p["problem_id"] == "P011")
+-assert p001["harness_type"] == "typed"
+-assert p001["starter_template_python"] is not None
+-assert p011["harness_type"] == "typed"
+-assert p011["starter_template_python"] is not None
+-print(f"  P001 harness_type: {p001['harness_type']}  âœ“")
+-print(f"  P011 harness_type: {p011['harness_type']}  âœ“")
+-print(f"  All 20 problems loaded  âœ“")
+-
+-# â”€â”€ 2. Verify P011-P020 present â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-print("\n=== Step 2: P011-P020 verification ===")
+-new_ids = [f"P0{i}" for i in range(11, 21)]
+-loaded_ids = [p["problem_id"] for p in problems]
+-for pid in new_ids:
+-    assert pid in loaded_ids, f"{pid} not found"
+-print(f"  P011-P020 all present  âœ“")
+-r = client.get("/api/problems/P016")
+-assert r.status_code == 200
+-p016 = r.json()
+-assert p016["test_case_count"] == 10
+-assert p016["harness_type"] == "typed"
+-print(f"  P016 test cases: {p016['test_case_count']}  âœ“")
+-print(f"  P016 first test: {p016['test_cases'][0]['input']}  â†’  {p016['test_cases'][0]['expected_output']}")
+-
+-# â”€â”€ 3. Submit AI-vs-Human comparison (P002) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-print("\n=== Step 3: Submit AI-vs-Human comparison (P002, Python) ===")
+-
+-AI_CODE = """
+-def max_subarray(nums):
+-    best = cur = nums[0]
+-    for n in nums[1:]:
+-        cur = max(n, cur + n)
+-        best = max(best, cur)
+-    return best
+-"""
+-
+-HUMAN_CODE = """
+-def max_subarray(nums):
+-    max_sum = nums[0]
+-    for i in range(len(nums)):
+-        current = 0
+-        for j in range(i, len(nums)):
+-            current += nums[j]
+-            max_sum = max(max_sum, current)
+-    return max_sum
+-"""
+-
+-payload = {
+-    "problem_id": "P002",
+-    "language": "python",
+-    "ai_name": "ChatGPT-4o (Research Test)",
+-    "ai_code": AI_CODE,
+-    "human_code": HUMAN_CODE,
+-    "experiment_type": "RESEARCH",
+-}
+-
+-r = client.post("/api/comparisons", json=payload)
+-assert r.status_code == 200, f"Submission failed ({r.status_code}): {r.text[:500]}"
+-report = r.json()
+-cid = report["comparison_id"]
+-print(f"  Comparison ID: {cid}  âœ“")
+-print(f"  Problem: {report['problem_title']}  âœ“")
+-
+-exec_ai = report["execution"]["ai"]
+-exec_hu = report["execution"]["human"]
+-print(f"  AI execution:    {exec_ai['passed']}/{exec_ai['total']} passed  ({exec_ai['execution_time_ms']:.1f}ms)")
+-print(f"  Human execution: {exec_hu['passed']}/{exec_hu['total']} passed  ({exec_hu['execution_time_ms']:.1f}ms)")
+-assert exec_ai["passed"] == 10
+-assert exec_hu["passed"] == 10
+-print("  Both pass all 10 test cases  âœ“")
+-
+-scores = report["scores"]
+-overall = next(m for m in report["comparison"] if m["metric"] == "overall")
+-print(f"  AI overall: {scores['ai_overall']}  Human overall: {scores['human_overall']}")
+-print(f"  Winner: {overall['direction']}  âœ“")
+-
+-# â”€â”€ 4. Submit comparison on a new P011-P020 problem â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-print("\n=== Step 4: Submit comparison on P016 (HTML Escaper, Python) ===")
+-
+-AI_HTML = """
+-def escape_html(s):
+-    return s.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;').replace('"','&quot;').replace("'",'&#39;')
+-"""
+-
+-HUMAN_HTML = """
+-def escape_html(s):
+-    result = []
+-    for ch in s:
+-        if ch == '&':   result.append('&amp;')
+-        elif ch == '<': result.append('&lt;')
+-        elif ch == '>': result.append('&gt;')
+-        elif ch == '"': result.append('&quot;')
+-        elif ch == "'": result.append('&#39;')
+-        else:           result.append(ch)
+-    return ''.join(result)
+-"""
+-
+-r2 = client.post("/api/comparisons", json={
+-    "problem_id": "P016",
+-    "language": "python",
+-    "ai_name": "ChatGPT-4o (Research Test)",
+-    "ai_code": AI_HTML,
+-    "human_code": HUMAN_HTML,
+-    "experiment_type": "RESEARCH",
+-})
+-assert r2.status_code == 200, f"P016 submission failed: {r2.text[:300]}"
+-rep2 = r2.json()
+-cid2 = rep2["comparison_id"]
+-exec_ai2 = rep2["execution"]["ai"]
+-exec_hu2 = rep2["execution"]["human"]
+-assert exec_ai2["passed"] == 10, f"P016 AI passed {exec_ai2['passed']}/10"
+-assert exec_hu2["passed"] == 10, f"P016 Human passed {exec_hu2['passed']}/10"
+-print(f"  P016 Comparison ID: {cid2}  âœ“")
+-print(f"  AI: {exec_ai2['passed']}/10 PASS  Human: {exec_hu2['passed']}/10 PASS  âœ“")
+-print(f"  Both P011-P020 problems execute correctly through the live API  âœ“")
+-
+-# â”€â”€ 5. Retrieve and verify reports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-print("\n=== Step 5: Retrieve reports ===")
+-r = client.get(f"/api/comparisons/{cid}")
+-assert r.status_code == 200
+-assert r.json()["problem_title"] == "Maximum Subarray Sum"
+-print(f"  GET /api/comparisons/{cid} â†’ 200  âœ“")
+-
+-r = client.get(f"/api/comparisons/{cid2}/detailed")
+-assert r.status_code == 200
+-detail = r.json()
+-assert "six_dimensions" in detail
+-assert detail["experiment"]["problem_id"] == "P016"
+-print(f"  Detailed report for P016 â†’ 200  âœ“")
+-print(f"  All 6 dimensions present  âœ“")
+-
+-# â”€â”€ 6. Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-print("\n=== Step 6: Dashboard ===")
+-r = client.get("/api/dashboard")
+-assert r.status_code == 200
+-kpis = r.json()["kpis"]
+-print(f"  total_problems:    {kpis['total_problems']}")
+-print(f"  total_comparisons: {kpis['total_comparisons']}")
+-assert kpis["total_problems"] == 30, f"Expected 30 problems, got {kpis['total_problems']}"
+-assert kpis["total_comparisons"] >= 2
+-print("  Dashboard shows 30 problems and â‰¥2 comparisons  âœ“")
+-
+-# â”€â”€ 7. Statistics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-print("\n=== Step 7: Statistics API ===")
+-r = client.get("/api/statistics")
+-assert r.status_code == 200
+-print("  /api/statistics â†’ 200  âœ“")
+-
+-# â”€â”€ 8. Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-print("\n" + "="*60)
+-print("ALL WORKFLOW STEPS PASSED")
+-print(f"  20 problems (P001-P030 all loaded and accessible")
+-print(f"  P001-P010 and P011-P020 both execute correctly")
+-print(f"  AI-vs-Human comparison stored and retrievable")
+-print(f"  All 6 research dimensions scored")
+-print(f"  Dashboard shows correct problem count (20)")
+-print("="*60)
+diff --git a/test_p021_p030_live.py b/test_p021_p030_live.py
+deleted file mode 100644
+index 983cd43..0000000
+--- a/test_p021_p030_live.py
++++ /dev/null
+@@ -1,89 +0,0 @@
+-"""Live API test for P021-P030."""
+-import sys, os
+-sys.path.insert(0, os.path.dirname(__file__))
+-from fastapi.testclient import TestClient
+-from backend.main import app
+-
+-client = TestClient(app)
+-
+-# â”€â”€ Verify all 30 problems present â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r = client.get("/api/problems")
+-assert r.status_code == 200
+-problems = r.json()
+-assert len(problems) == 30, f"Expected 30, got {len(problems)}"
+-new_ids = [f"P0{i}" for i in range(21,31)]
+-loaded_ids = {p["problem_id"] for p in problems}
+-for pid in new_ids:
+-    assert pid in loaded_ids, f"{pid} missing"
+-print(f"  All 30 problems present âœ“  (P021-P030 confirmed)")
+-
+-# â”€â”€ Verify P021 detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r = client.get("/api/problems/P021")
+-assert r.status_code == 200
+-p = r.json()
+-assert p["harness_type"] == "typed"
+-assert p["test_case_count"] == 10
+-print(f"  P021: '{p['title']}' â€” {p['test_case_count']} test cases âœ“")
+-
+-# â”€â”€ Submit comparison on P029 (Sort Direction Validator) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-AI = """
+-def validate_sort_direction(s):
+-    n = s.strip().upper()
+-    return n if n in ('ASC','DESC') else 'INVALID'
+-"""
+-HUMAN = """
+-def validate_sort_direction(s):
+-    cleaned = s.strip().upper()
+-    if cleaned == 'ASC': return 'ASC'
+-    if cleaned == 'DESC': return 'DESC'
+-    return 'INVALID'
+-"""
+-r = client.post("/api/comparisons", json={
+-    "problem_id": "P029",
+-    "language": "python",
+-    "ai_name": "TestAI-P029",
+-    "ai_code": AI,
+-    "human_code": HUMAN,
+-    "experiment_type": "RESEARCH"
+-})
+-assert r.status_code == 200, f"P029 submission failed: {r.text[:200]}"
+-rep = r.json()
+-assert rep["execution"]["ai"]["passed"] == 10
+-assert rep["execution"]["human"]["passed"] == 10
+-print(f"  P029 comparison: AI 10/10 PASS, Human 10/10 PASS âœ“")
+-
+-# â”€â”€ Submit on P026 (SQL Identifier Validator) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-AI2 = """
+-import re
+-def is_valid_sql_identifier(name):
+-    if not name or len(name) > 64: return False
+-    return bool(re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', name))
+-"""
+-HUMAN2 = """
+-def is_valid_sql_identifier(name):
+-    if not name or len(name) > 64: return False
+-    if not (name[0].isalpha() or name[0] == '_'): return False
+-    return all(c.isalnum() or c == '_' for c in name)
+-"""
+-r2 = client.post("/api/comparisons", json={
+-    "problem_id": "P026",
+-    "language": "python",
+-    "ai_name": "TestAI-P026",
+-    "ai_code": AI2,
+-    "human_code": HUMAN2,
+-    "experiment_type": "RESEARCH"
+-})
+-assert r2.status_code == 200, f"P026 failed: {r2.text[:200]}"
+-rep2 = r2.json()
+-assert rep2["execution"]["ai"]["passed"] == 10
+-assert rep2["execution"]["human"]["passed"] == 10
+-print(f"  P026 comparison: AI 10/10 PASS, Human 10/10 PASS âœ“")
+-
+-# â”€â”€ Check dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r = client.get("/api/dashboard")
+-kpis = r.json()["kpis"]
+-assert kpis["total_problems"] == 30
+-assert kpis["total_comparisons"] >= 3
+-print(f"  Dashboard: {kpis['total_problems']} problems, {kpis['total_comparisons']} comparisons âœ“")
+-
+-print("\nALL P021-P030 LIVE TESTS PASSED âœ“")
+diff --git a/test_p031_p040_live.py b/test_p031_p040_live.py
+deleted file mode 100644
+index f162f88..0000000
+--- a/test_p031_p040_live.py
++++ /dev/null
+@@ -1,105 +0,0 @@
+-"""Live API verification for P031-P040."""
+-import sys, os
+-sys.path.insert(0, os.path.dirname(__file__))
+-from fastapi.testclient import TestClient
+-from backend.main import app
+-
+-client = TestClient(app)
+-
+-# â”€â”€ 1. DB counts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r = client.get("/api/problems")
+-assert r.status_code == 200
+-problems = r.json()
+-assert len(problems) == 40, f"Expected 40, got {len(problems)}"
+-print(f"  Problems: {len(problems)} âœ“")
+-
+-new_ids = [f"P0{i}" for i in range(31,41)]
+-loaded  = {p["problem_id"] for p in problems}
+-for pid in new_ids:
+-    assert pid in loaded, f"{pid} missing"
+-print(f"  P031-P040 all present âœ“")
+-
+-# P001 and P030 still exist (boundary check)
+-assert "P001" in loaded and "P030" in loaded, "P001 or P030 missing!"
+-print(f"  P001 and P030 still intact âœ“")
+-
+-# â”€â”€ 2. Problem detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-for pid in ["P031","P037","P040"]:
+-    r2 = client.get(f"/api/problems/{pid}")
+-    assert r2.status_code == 200
+-    p = r2.json()
+-    assert p["harness_type"] == "typed"
+-    assert p["test_case_count"] == 10
+-    assert p["starter_template_python"] is not None
+-    print(f"  {pid}: '{p['title']}' â€” 10 TCs â€” typed âœ“")
+-
+-# â”€â”€ 3. Submit comparison on P033 (Shell Meta Detector, Python) â”€â”€â”€â”€â”€â”€â”€
+-AI = """
+-def detect_shell_meta(s):
+-    dangerous = set(';|&$`><(){}"' + "'\\\\" + '\\n\\r')
+-    for ch in s:
+-        if ch in dangerous: return "unsafe"
+-    return "safe"
+-"""
+-HUMAN = """
+-def detect_shell_meta(s):
+-    for ch in s:
+-        if ch in (';','|','&','$','`','>','<','(',')','{'  ,'}','"',"'",'\\\\','\\n','\\r'):
+-            return "unsafe"
+-    return "safe"
+-"""
+-r3 = client.post("/api/comparisons", json={
+-    "problem_id": "P033", "language": "python",
+-    "ai_name": "TestAI-P033", "ai_code": AI, "human_code": HUMAN,
+-    "experiment_type": "RESEARCH"
+-})
+-assert r3.status_code == 200, f"P033 submission failed: {r3.text[:200]}"
+-rep = r3.json()
+-assert rep["execution"]["ai"]["passed"] == 10, f"AI passed {rep['execution']['ai']['passed']}/10"
+-assert rep["execution"]["human"]["passed"] == 10
+-print(f"  P033 comparison: AI 10/10, Human 10/10 âœ“")
+-
+-# â”€â”€ 4. Submit comparison on P040 (Numeric Expr Validator, Python) â”€â”€â”€â”€
+-AI2 = """
+-import re
+-def validate_numeric_expr(s):
+-    s = s.strip()
+-    if not s: return 'invalid'
+-    pattern = r'^-?(?:0|[1-9][0-9]*)(?:\\s*[+\\-*/]\\s*-?(?:0|[1-9][0-9]*))*$'
+-    return 'valid' if re.match(pattern, s) else 'invalid'
+-"""
+-HUMAN2 = """
+-import re
+-def validate_numeric_expr(s):
+-    s = s.strip()
+-    if not s: return 'invalid'
+-    num = r'-?(?:0|[1-9]\\d*)'
+-    op  = r'\\s*[+\\-*/]\\s*'
+-    if re.fullmatch(f'{num}(?:{op}{num})*', s):
+-        return 'valid'
+-    return 'invalid'
+-"""
+-r4 = client.post("/api/comparisons", json={
+-    "problem_id": "P040", "language": "python",
+-    "ai_name": "TestAI-P040", "ai_code": AI2, "human_code": HUMAN2,
+-    "experiment_type": "RESEARCH"
+-})
+-assert r4.status_code == 200, f"P040 failed: {r4.text[:200]}"
+-rep4 = r4.json()
+-assert rep4["execution"]["ai"]["passed"] == 10
+-assert rep4["execution"]["human"]["passed"] == 10
+-print(f"  P040 comparison: AI 10/10, Human 10/10 âœ“")
+-
+-# â”€â”€ 5. Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r5 = client.get("/api/dashboard")
+-kpis = r5.json()["kpis"]
+-assert kpis["total_problems"] == 40, f"Expected 40 problems, got {kpis['total_problems']}"
+-assert kpis["total_comparisons"] >= 2
+-print(f"  Dashboard: {kpis['total_problems']} problems, {kpis['total_comparisons']} comparisons âœ“")
+-
+-# â”€â”€ 6. Statistics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-r6 = client.get("/api/statistics")
+-assert r6.status_code == 200
+-print(f"  Statistics API: 200 âœ“")
+-
+-print("\nALL P031-P040 LIVE TESTS PASSED âœ“")
+diff --git a/tests/test_api.py b/tests/test_api.py
+index 0293b96..c9c93e2 100644
+--- a/tests/test_api.py
++++ b/tests/test_api.py
+@@ -1,5 +1,6 @@
+ import os
+ import tempfile
++from io import BytesIO
+ 
+ import pytest
+ 
+@@ -243,9 +244,106 @@ def test_excel_export(client):
+     assert r.headers["content-disposition"] == "attachment; filename=research_report.xlsx"
+ 
+ 
++def test_benchmark_dataset_import_and_summary_sheet(client):
++    from backend.db import benchmark_import
++    from backend.config import PROJECT_ROOT
++
++    active_result_file = (PROJECT_ROOT / "AI VS HUMAN CODE" / "benchmark_execution_results"
++                          / "python_chatgpt_human_p001_p050_execution_results.json")
++    assert active_result_file.is_file()
++    benchmark_import.import_all_benchmark_results()
++    benchmark_import.import_all_benchmark_results()  # repeat import must update, not duplicate
++    chatgpt_source = (PROJECT_ROOT / "AI VS HUMAN CODE" / "ChatGPT" / "Python" / "solutions.py").read_text(encoding="utf-8")
++    human_source = (PROJECT_ROOT / "AI VS HUMAN CODE" / "human code" / "python" / "solutions.py").read_text(encoding="utf-8")
++
++    with SessionLocal() as s:
++        imported = s.query(models.Comparison).filter_by(
++            problem_id="P001", language="python", ai_name="ChatGPT", ai_source_code=chatgpt_source
++        ).order_by(models.Comparison.comparison_id.desc()).first()
++        assert imported is not None
++        assert imported.status == "execution_only"
++        assert imported.human_source_code == human_source
++        imported_ids = [c.comparison_id for c in s.query(models.Comparison).filter(
++            models.Comparison.language == "python", models.Comparison.ai_name == "ChatGPT",
++            models.Comparison.is_pilot == 0,
++            models.Comparison.problem_id.in_([f"P{i:03d}" for i in range(1, 51)]),
++            models.Comparison.ai_source_code == chatgpt_source,
++        ).all()]
++        assert len(imported_ids) == 50
++        legacy_models = ["Claude_Sonnet_5", "Gemini", "Grok", "Perplexity"]
++        assert s.query(models.Comparison).filter(
++            models.Comparison.language.in_(["python", "java", "cpp", "javascript"]),
++            models.Comparison.ai_name.in_(legacy_models),
++            models.Comparison.ai_source_code == "",
++        ).count() == 0  # archived JSON without source code is not auto-imported
++        assert s.query(models.ExecutionResult).filter(models.ExecutionResult.comparison_id.in_(imported_ids)).count() == 100
++        assert s.query(models.TestCaseResult).filter(models.TestCaseResult.comparison_id.in_(imported_ids)).count() == 1000
++        assert s.query(models.Score).filter(models.Score.comparison_id.in_(imported_ids)).count() == 0
++        assert s.query(models.ComparisonResult).filter(models.ComparisonResult.comparison_id.in_(imported_ids)).count() == 0
++        human_execution = s.query(models.ExecutionResult).filter_by(
++            comparison_id=imported.comparison_id, code_variant="HUMAN"
++        ).one()
++        assert human_execution.execution_status == "PASS"
++        assert human_execution.pass_rate == 100.0
++        assert human_execution.execution_time_ms is not None
++
++    with SessionLocal() as s:
++        expected_valid_count = s.query(models.Comparison).join(
++            models.ComparisonResult,
++            models.ComparisonResult.comparison_id == models.Comparison.comparison_id,
++        ).filter(
++            models.Comparison.is_pilot == 0,
++            models.Comparison.status == "completed",
++            models.ComparisonResult.metric == "overall",
++            models.ComparisonResult.ai_value.is_not(None),
++            models.ComparisonResult.human_value.is_not(None),
++        ).count()
++    dashboard = client.get("/api/dashboard").json()
++    assert dashboard["kpis"]["total_comparisons"] == expected_valid_count
++    assert dashboard["kpis"]["raw_execution_datasets"] == 50
++    assert dashboard["kpis"]["incomplete_comparisons"] == 0
++    assert sum(dashboard["outcomes"].values()) == expected_valid_count
++
++    detailed = client.get(f"/api/comparisons/{imported.comparison_id}/detailed")
++    assert detailed.status_code == 200
++    report = detailed.json()
++    assert report["experiment"]["status"] == "execution_only"
++    assert report["reliability"]["human"]["pass_rate"] == 100.0
++    assert report["executive_result"]["ai_overall"] is None
++    assert report["executive_result"]["direction"] is None
++    assert report["test_cases"]["ai"][0]["test_case_id"] > 0
++    with SessionLocal() as s:
++        p001_case_ids = {
++            tc.test_case_id for tc in s.query(models.TestCase).filter_by(problem_id="P001").all()
++        }
++        imported_case_ids = {
++            tc.test_case_id for tc in s.query(models.TestCaseResult).filter_by(
++                comparison_id=imported.comparison_id, code_variant="AI"
++            ).all()
++        }
++        assert imported_case_ids
++        assert imported_case_ids.issubset(p001_case_ids)
++
++    r = client.get("/api/export/research-report")
++    assert r.status_code == 200
++    assert r.headers["content-type"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
++    from openpyxl import load_workbook
++    workbook = load_workbook(BytesIO(r.content), read_only=True, data_only=True)
++    overview = workbook["Research Overview"]
++    overview_values = {overview.cell(row, 1).value: overview.cell(row, 2).value for row in range(1, 20)}
++    assert overview_values["Research Comparisons"] == expected_valid_count
++    assert overview_values["Raw Execution Datasets (scores/winners not calculated)"] == 50
++    assert overview_values["Incomplete Research Records (excluded from scores)"] == 0
++
++
+ def test_detailed_report_maintainability_calculation(client):
+-    lst = client.get("/api/comparisons").json()
+-    cid = lst[0]["comparison_id"]
++    code = sample_python(1)
++    created = client.post("/api/comparisons", json={
++        "problem_id": "P013", "language": "python", "ai_name": "MaintainabilityTest",
++        "ai_code": code, "human_code": code, "experiment_type": "RESEARCH",
++    })
++    assert created.status_code == 200
++    cid = created.json()["comparison_id"]
+     r = client.get(f"/api/comparisons/{cid}/detailed")
+     assert r.status_code == 200
+     data = r.json()
+diff --git a/validate_languages.py b/validate_languages.py
+deleted file mode 100644
+index 706f7b5..0000000
+--- a/validate_languages.py
++++ /dev/null
+@@ -1,212 +0,0 @@
+-"""
+-End-to-end execution validation for all 4 languages.
+-Uses the real executor + harness pipeline (same path as the API).
+-"""
+-import os, sys, json
+-os.environ.setdefault("RESEARCH_DB_PATH", "database/research.db")
+-sys.path.insert(0, ".")
+-
+-from backend.engine.executor import execute
+-from backend.db.session import SessionLocal
+-from backend.db import models
+-
+-PASS_MARK = "\u2705"
+-FAIL_MARK = "\u274c"
+-WARN_MARK = "\u26a0\ufe0f"
+-
+-def get_test_cases(problem_id):
+-    with SessionLocal() as s:
+-        tcs = s.query(models.TestCase).filter_by(problem_id=problem_id).order_by(models.TestCase.test_case_id).all()
+-        return [{"input": tc.input, "expected": tc.expected_output} for tc in tcs]
+-
+-def run_test(lang, problem_id, label, code, expect_all_pass):
+-    tcs = get_test_cases(problem_id)
+-    result = execute(lang, code, tcs, "solve")
+-    status     = result["status"]
+-    cases      = result.get("cases", [])
+-    passed     = sum(1 for c in cases if c["status"] == "PASS")
+-    failed     = sum(1 for c in cases if c["status"] == "FAIL")
+-    errored    = sum(1 for c in cases if c["status"] == "ERROR")
+-    total      = len(cases)
+-    elapsed    = result.get("execution_time_ms", 0)
+-
+-    ok = (expect_all_pass and status in ("PASS",)) or \
+-         (not expect_all_pass and status in ("FAIL", "ERROR", "PASS"))
+-
+-    mark = PASS_MARK if ok else FAIL_MARK
+-    print(f"\n{mark}  [{lang.upper()}] {label}")
+-    print(f"   Problem : {problem_id}")
+-    print(f"   Status  : {status}  ({passed}/{total} passed, {failed} failed, {errored} errors)  {elapsed:.1f}ms")
+-
+-    if expect_all_pass and status != "PASS":
+-        print(f"   {FAIL_MARK} EXPECTED all PASS â€” got {status}")
+-        # Show failing cases
+-        for c in cases:
+-            if c["status"] != "PASS":
+-                print(f"      TC#{c['index']} status={c['status']}")
+-                print(f"        input    = {repr(tcs[c['index']]['input'])}")
+-                print(f"        expected = {repr(c['expected'])}")
+-                print(f"        actual   = {repr(c['actual'])}")
+-                if c.get("error"):
+-                    print(f"        error    = {c['error']}")
+-        # Also dump raw stdout/stderr for compile/harness failures
+-        if result.get("error"):
+-            print(f"   Engine error: {result['error'][:800]}")
+-        if result.get("stderr"):
+-            print(f"   STDERR: {result['stderr'][:800]}")
+-    elif not expect_all_pass:
+-        # Deliberate wrong â€” just confirm it didn't ERROR unexpectedly
+-        if status == "ERROR" and errored == total:
+-            print(f"   {WARN_MARK}  All cases ERROR (may be compile/runtime issue, not a FAIL)")
+-            if result.get("error"):
+-                print(f"   Engine error: {result['error'][:600]}")
+-        else:
+-            print(f"   {PASS_MARK} Deliberate wrong solution correctly scored {status}")
+-
+-    return ok, result
+-
+-# =============================================================================
+-# SOLUTIONS â€” B013 Integer Range Validator
+-# Input: "value|min|max"  â†’  "VALID" or "INVALID"
+-# =============================================================================
+-
+-PYTHON_CORRECT = """\
+-def solve(data: str) -> str:
+-    parts = data.strip().split('|')
+-    try:
+-        v  = int(parts[0].strip())
+-        lo = int(parts[1].strip())
+-        hi = int(parts[2].strip())
+-        if lo > hi:
+-            return 'INVALID'
+-        return 'VALID' if lo <= v <= hi else 'INVALID'
+-    except Exception:
+-        return 'INVALID'
+-"""
+-
+-PYTHON_WRONG = """\
+-def solve(data: str) -> str:
+-    return 'WRONG'
+-"""
+-
+-JAVA_CORRECT = """\
+-public class Solution {
+-    public static String solve(String data) {
+-        String[] parts = data.trim().split("\\\\|");
+-        try {
+-            int v  = Integer.parseInt(parts[0].trim());
+-            int lo = Integer.parseInt(parts[1].trim());
+-            int hi = Integer.parseInt(parts[2].trim());
+-            if (lo > hi) return "INVALID";
+-            return (v >= lo && v <= hi) ? "VALID" : "INVALID";
+-        } catch (Exception e) {
+-            return "INVALID";
+-        }
+-    }
+-}
+-"""
+-
+-JAVA_WRONG = """\
+-public class Solution {
+-    public static String solve(String data) {
+-        return "WRONG";
+-    }
+-}
+-"""
+-
+-CPP_CORRECT = """\
+-#include <string>
+-#include <sstream>
+-#include <stdexcept>
+-using namespace std;
+-
+-string solve(const string& data) {
+-    // parse "value|min|max"
+-    string token;
+-    int vals[3];
+-    int idx = 0;
+-    string s = data;
+-    // trim
+-    while (!s.empty() && (s.front()==' '||s.front()=='\\t')) s.erase(s.begin());
+-    while (!s.empty() && (s.back()==' '||s.back()=='\\t')) s.pop_back();
+-
+-    istringstream ss(s);
+-    while (getline(ss, token, '|')) {
+-        // trim token
+-        while (!token.empty() && (token.front()==' '||token.front()=='\\t')) token.erase(token.begin());
+-        while (!token.empty() && (token.back()==' '||token.back()=='\\t')) token.pop_back();
+-        if (idx >= 3) return "INVALID";
+-        try { vals[idx++] = stoi(token); }
+-        catch(...) { return "INVALID"; }
+-    }
+-    if (idx != 3) return "INVALID";
+-    int v = vals[0], lo = vals[1], hi = vals[2];
+-    if (lo > hi) return "INVALID";
+-    return (v >= lo && v <= hi) ? "VALID" : "INVALID";
+-}
+-"""
+-
+-CPP_WRONG = """\
+-#include <string>
+-using namespace std;
+-string solve(const string& data) {
+-    return "WRONG";
+-}
+-"""
+-
+-JS_CORRECT = """\
+-function solve(data) {
+-    const parts = data.trim().split('|');
+-    try {
+-        const v  = parseInt(parts[0].trim(), 10);
+-        const lo = parseInt(parts[1].trim(), 10);
+-        const hi = parseInt(parts[2].trim(), 10);
+-        if (isNaN(v) || isNaN(lo) || isNaN(hi)) return 'INVALID';
+-        if (lo > hi) return 'INVALID';
+-        return (v >= lo && v <= hi) ? 'VALID' : 'INVALID';
+-    } catch (e) {
+-        return 'INVALID';
+-    }
+-}
+-module.exports = { solve };
+-"""
+-
+-JS_WRONG = """\
+-function solve(data) { return 'WRONG'; }
+-module.exports = { solve };
+-"""
+-
+-# =============================================================================
+-# RUN ALL TESTS
+-# =============================================================================
+-print("=" * 65)
+-print("  RESEARCH CODE EVALUATOR â€” 4-LANGUAGE EXECUTION VALIDATION")
+-print("  Problem: B013  Integer Range Validator  (10 test cases)")
+-print("=" * 65)
+-
+-results = {}
+-
+-ok_py_good,  r_py_good  = run_test("python",     "B013", "Correct solution",     PYTHON_CORRECT, expect_all_pass=True)
+-ok_py_bad,   r_py_bad   = run_test("python",     "B013", "Deliberate wrong",     PYTHON_WRONG,   expect_all_pass=False)
+-ok_java_good,r_java_good= run_test("java",        "B013", "Correct solution",     JAVA_CORRECT,   expect_all_pass=True)
+-ok_java_bad, r_java_bad = run_test("java",        "B013", "Deliberate wrong",     JAVA_WRONG,     expect_all_pass=False)
+-ok_cpp_good, r_cpp_good = run_test("cpp",         "B013", "Correct solution",     CPP_CORRECT,    expect_all_pass=True)
+-ok_cpp_bad,  r_cpp_bad  = run_test("cpp",         "B013", "Deliberate wrong",     CPP_WRONG,      expect_all_pass=False)
+-ok_js_good,  r_js_good  = run_test("javascript",  "B013", "Correct solution",     JS_CORRECT,     expect_all_pass=True)
+-ok_js_bad,   r_js_bad   = run_test("javascript",  "B013", "Deliberate wrong",     JS_WRONG,       expect_all_pass=False)
+-
+-print("\n" + "=" * 65)
+-print("  SUMMARY")
+-print("=" * 65)
+-py_ok   = ok_py_good   and ok_py_bad
+-java_ok = ok_java_good and ok_java_bad
+-cpp_ok  = ok_cpp_good  and ok_cpp_bad
+-js_ok   = ok_js_good   and ok_js_bad
+-
+-for lang, ok in [("Python    ", py_ok), ("Java      ", java_ok), ("C++       ", cpp_ok), ("JavaScript", js_ok)]:
+-    print(f"  {PASS_MARK if ok else FAIL_MARK}  {lang}  {'PASS' if ok else 'ISSUE'}")
+-
+-print()
+-all_ok = py_ok and java_ok and cpp_ok and js_ok
+-print("  OVERALL:", "ALL PASS â€” ready for research data collection" if all_ok else "ISSUES FOUND â€” see details above")
+-print()

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -13,6 +14,8 @@ from backend.db import models
 from backend.db.session import SessionLocal
 from backend.scoring.scoring import load_config
 from backend.statistics.statistics import compute_statistics
+
+_ILLEGAL_XML_CHARACTERS = re.compile(r"[\x00-\x08\x0B\x0C\x0E-\x1F]")
 
 
 def _utcnow() -> datetime:
@@ -47,9 +50,9 @@ def _write_sheet(ws, headers: list[str], rows: list[dict], start_row: int = 1) -
     for r_idx, row in enumerate(rows, start_row + 1):
         for c_idx, h in enumerate(headers, 1):
             val = row.get(h)
-            # Strip illegal XML characters (e.g. null bytes) that openpyxl rejects
+            # Excel worksheet strings cannot contain XML 1.0 control characters.
             if isinstance(val, str):
-                val = val.replace("\x00", "").replace("\x0b", "").replace("\x0c", "")
+                val = _ILLEGAL_XML_CHARACTERS.sub("", val)
             ws.cell(row=r_idx, column=c_idx, value=val)
     _autosize(ws)
 
@@ -563,7 +566,32 @@ def generate_research_report() -> io.BytesIO:
             "direction", "percentage_difference", "statistical_status",
         ], comp_out_rows)
 
-        # Sheet 10: Statistical Results
+        # Sheet 10: AI vs Human Summary
+        summary_rows = []
+        for c in comparisons:
+            cid = c.comparison_id
+            overall = comp_map.get(cid, {}).get("overall")
+            if not overall:
+                continue
+            summary_rows.append({
+                "comparison_id": cid,
+                "problem_id": c.problem_id,
+                "problem_title": session.get(models.Problem, c.problem_id).title if session.get(models.Problem, c.problem_id) else c.problem_id,
+                "language": c.language,
+                "ai_name": c.ai_name,
+                "ai_overall": overall.ai_value,
+                "human_overall": overall.human_value,
+                "difference": overall.difference,
+                "direction": overall.direction,
+                "percentage_difference": overall.percentage_difference,
+            })
+        ws = wb.create_sheet("AI vs Human Summary")
+        _write_sheet(ws, [
+            "comparison_id", "problem_id", "problem_title", "language", "ai_name",
+            "ai_overall", "human_overall", "difference", "direction", "percentage_difference",
+        ], summary_rows)
+
+        # Sheet 11: Statistical Results
         persisted_stats = session.query(models.StatisticalResult).order_by(models.StatisticalResult.comparison_id, models.StatisticalResult.metric).all()
         stat_rows = []
         for s in persisted_stats:
@@ -756,7 +784,16 @@ def generate_research_report() -> io.BytesIO:
                     cell.fill = cmp_fill
 
         # ── RESEARCH OVERVIEW (summary across research comparisons) ─────────
-        research_comps = [c for c in comparisons if not c.is_pilot]
+        research_comps = [
+            c for c in comparisons
+            if not c.is_pilot
+            and c.status == "completed"
+            and comp_map.get(c.comparison_id, {}).get("overall") is not None
+            and comp_map[c.comparison_id]["overall"].ai_value is not None
+            and comp_map[c.comparison_id]["overall"].human_value is not None
+        ]
+        raw_execution_count = sum(1 for c in comparisons if not c.is_pilot and c.status == "execution_only")
+        incomplete_research_count = sum(1 for c in comparisons if not c.is_pilot) - len(research_comps) - raw_execution_count
         ws_ov = wb.create_sheet("Research Overview")
         ws_ov.cell(row=1, column=1, value="Research Code Evaluator — Dataset Overview")
         ws_ov.cell(row=1, column=1).font = Font(bold=True, size=14, color="1e3a8a")
@@ -765,16 +802,20 @@ def generate_research_report() -> io.BytesIO:
         ws_ov.cell(row=4, column=1, value="Research Comparisons")
         ws_ov.cell(row=4, column=2, value=len(research_comps))
         ws_ov.cell(row=5, column=1, value="Pilot Comparisons")
-        ws_ov.cell(row=5, column=2, value=len(comparisons) - len(research_comps))
+        ws_ov.cell(row=5, column=2, value=sum(1 for c in comparisons if c.is_pilot))
+        ws_ov.cell(row=6, column=1, value="Incomplete Research Records (excluded from scores)")
+        ws_ov.cell(row=6, column=2, value=incomplete_research_count)
         problems_set = {c.problem_id for c in research_comps}
-        ws_ov.cell(row=6, column=1, value="Problems Evaluated (Research)")
-        ws_ov.cell(row=6, column=2, value=len(problems_set))
+        ws_ov.cell(row=7, column=1, value="Problems Evaluated (valid research pairs)")
+        ws_ov.cell(row=7, column=2, value=len(problems_set))
         langs = {c.language for c in research_comps}
-        ws_ov.cell(row=7, column=1, value="Languages Used")
-        ws_ov.cell(row=7, column=2, value=", ".join(sorted(langs)))
+        ws_ov.cell(row=8, column=1, value="Languages Used (valid research pairs)")
+        ws_ov.cell(row=8, column=2, value=", ".join(sorted(langs)))
         ai_systems = {c.ai_name for c in research_comps}
-        ws_ov.cell(row=8, column=1, value="AI Systems")
-        ws_ov.cell(row=8, column=2, value=", ".join(sorted(ai_systems)))
+        ws_ov.cell(row=9, column=1, value="AI Systems (valid research pairs)")
+        ws_ov.cell(row=9, column=2, value=", ".join(sorted(ai_systems)))
+        ws_ov.cell(row=10, column=1, value="Raw Execution Datasets (scores/winners not calculated)")
+        ws_ov.cell(row=10, column=2, value=raw_execution_count)
 
         # Average AI vs Human overall scores (research only)
         res_overall = [comp_map.get(c.comparison_id, {}).get("overall") for c in research_comps]
@@ -783,24 +824,24 @@ def generate_research_report() -> io.BytesIO:
         avg_ai = round(sum(ai_ovals) / len(ai_ovals), 3) if ai_ovals else None
         avg_hu = round(sum(hu_ovals) / len(hu_ovals), 3) if hu_ovals else None
         diff = round(avg_ai - avg_hu, 3) if avg_ai is not None and avg_hu is not None else None
-        ws_ov.cell(row=10, column=1, value="Average AI Overall Score")
-        ws_ov.cell(row=10, column=2, value=avg_ai)
-        ws_ov.cell(row=11, column=1, value="Average Human Overall Score")
-        ws_ov.cell(row=11, column=2, value=avg_hu)
-        ws_ov.cell(row=12, column=1, value="Average Difference (AI - Human)")
-        ws_ov.cell(row=12, column=2, value=diff)
+        ws_ov.cell(row=11, column=1, value="Average AI Overall Score")
+        ws_ov.cell(row=11, column=2, value=avg_ai)
+        ws_ov.cell(row=12, column=1, value="Average Human Overall Score")
+        ws_ov.cell(row=12, column=2, value=avg_hu)
+        ws_ov.cell(row=13, column=1, value="Average Difference (AI - Human)")
+        ws_ov.cell(row=13, column=2, value=diff)
 
         ai_wins = sum(1 for r in res_overall if r and r.direction == "AI")
         hu_wins = sum(1 for r in res_overall if r and r.direction == "HUMAN")
         comp_count = sum(1 for r in res_overall if r and r.direction == "COMPARABLE")
-        ws_ov.cell(row=14, column=1, value="Overall AI Wins")
-        ws_ov.cell(row=14, column=2, value=ai_wins)
-        ws_ov.cell(row=15, column=1, value="Overall Human Wins")
-        ws_ov.cell(row=15, column=2, value=hu_wins)
-        ws_ov.cell(row=16, column=1, value="Comparable")
-        ws_ov.cell(row=16, column=2, value=comp_count)
-        ws_ov.cell(row=18, column=1, value="Note")
-        ws_ov.cell(row=18, column=2, value=(
+        ws_ov.cell(row=15, column=1, value="Overall AI Wins")
+        ws_ov.cell(row=15, column=2, value=ai_wins)
+        ws_ov.cell(row=16, column=1, value="Overall Human Wins")
+        ws_ov.cell(row=16, column=2, value=hu_wins)
+        ws_ov.cell(row=17, column=1, value="Comparable")
+        ws_ov.cell(row=17, column=2, value=comp_count)
+        ws_ov.cell(row=19, column=1, value="Note")
+        ws_ov.cell(row=19, column=2, value=(
             "Single-comparison results do not establish universal superiority. "
             "Statistical conclusions require sufficient paired observations."
         ))
@@ -849,12 +890,13 @@ def generate_research_report() -> io.BytesIO:
                         if hi == lo:
                             return round(100.0 if x <= lo else 0.0, 3)
                         return round(max(0.0, min(100.0, (hi - x) / (hi - lo) * 100.0)), 3)
+                    required_raw = set(mapping.values())
                     ai_maint_detail = " | ".join(
                         f"{k}={comp_score(ai_cx, k):.1f}×{mw[k]}" for k in mw
-                    )
+                    ) if required_raw.issubset(ai_cx) else "N/A"
                     hu_maint_detail = " | ".join(
                         f"{k}={comp_score(hu_cx, k):.1f}×{mw[k]}" for k in mw
-                    )
+                    ) if required_raw.issubset(hu_cx) else "N/A"
                 else:
                     ai_maint_detail = ""
                     hu_maint_detail = ""

@@ -22,13 +22,19 @@ function observation(metric: string, direction: string): string {
 export default function ReportDetail({ reportId, onBack }: { reportId: number; onBack: () => void }) {
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.getComparison(reportId).then(setReport).finally(() => setLoading(false));
+    setLoading(true);
+    setLoadError(null);
+    api.getComparison(reportId)
+      .then(setReport)
+      .catch((e: Error) => setLoadError(e.message))
+      .finally(() => setLoading(false));
   }, [reportId]);
 
   if (loading) return <div className="page"><p>Loading report…</p></div>;
-  if (!report) return <div className="page"><p>Report not found.</p></div>;
+  if (!report) return <div className="page"><p>{loadError || 'Report not found.'}</p></div>;
 
   const cmp = (m: string) => report.comparison.find((c) => c.metric === m);
 

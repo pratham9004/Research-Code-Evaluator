@@ -1,5 +1,6 @@
 import os
 import tempfile
+from io import BytesIO
 
 import pytest
 
@@ -243,9 +244,106 @@ def test_excel_export(client):
     assert r.headers["content-disposition"] == "attachment; filename=research_report.xlsx"
 
 
+def test_benchmark_dataset_import_and_summary_sheet(client):
+    from backend.db import benchmark_import
+    from backend.config import PROJECT_ROOT
+
+    active_result_file = (PROJECT_ROOT / "AI VS HUMAN CODE" / "benchmark_execution_results"
+                          / "python_chatgpt_human_p001_p050_execution_results.json")
+    assert active_result_file.is_file()
+    benchmark_import.import_all_benchmark_results()
+    benchmark_import.import_all_benchmark_results()  # repeat import must update, not duplicate
+    chatgpt_source = (PROJECT_ROOT / "AI VS HUMAN CODE" / "ChatGPT" / "Python" / "solutions.py").read_text(encoding="utf-8")
+    human_source = (PROJECT_ROOT / "AI VS HUMAN CODE" / "human code" / "python" / "solutions.py").read_text(encoding="utf-8")
+
+    with SessionLocal() as s:
+        imported = s.query(models.Comparison).filter_by(
+            problem_id="P001", language="python", ai_name="ChatGPT", ai_source_code=chatgpt_source
+        ).order_by(models.Comparison.comparison_id.desc()).first()
+        assert imported is not None
+        assert imported.status == "execution_only"
+        assert imported.human_source_code == human_source
+        imported_ids = [c.comparison_id for c in s.query(models.Comparison).filter(
+            models.Comparison.language == "python", models.Comparison.ai_name == "ChatGPT",
+            models.Comparison.is_pilot == 0,
+            models.Comparison.problem_id.in_([f"P{i:03d}" for i in range(1, 51)]),
+            models.Comparison.ai_source_code == chatgpt_source,
+        ).all()]
+        assert len(imported_ids) == 50
+        legacy_models = ["Claude_Sonnet_5", "Gemini", "Grok", "Perplexity"]
+        assert s.query(models.Comparison).filter(
+            models.Comparison.language.in_(["python", "java", "cpp", "javascript"]),
+            models.Comparison.ai_name.in_(legacy_models),
+            models.Comparison.ai_source_code == "",
+        ).count() == 0  # archived JSON without source code is not auto-imported
+        assert s.query(models.ExecutionResult).filter(models.ExecutionResult.comparison_id.in_(imported_ids)).count() == 100
+        assert s.query(models.TestCaseResult).filter(models.TestCaseResult.comparison_id.in_(imported_ids)).count() == 1000
+        assert s.query(models.Score).filter(models.Score.comparison_id.in_(imported_ids)).count() == 0
+        assert s.query(models.ComparisonResult).filter(models.ComparisonResult.comparison_id.in_(imported_ids)).count() == 0
+        human_execution = s.query(models.ExecutionResult).filter_by(
+            comparison_id=imported.comparison_id, code_variant="HUMAN"
+        ).one()
+        assert human_execution.execution_status == "PASS"
+        assert human_execution.pass_rate == 100.0
+        assert human_execution.execution_time_ms is not None
+
+    with SessionLocal() as s:
+        expected_valid_count = s.query(models.Comparison).join(
+            models.ComparisonResult,
+            models.ComparisonResult.comparison_id == models.Comparison.comparison_id,
+        ).filter(
+            models.Comparison.is_pilot == 0,
+            models.Comparison.status == "completed",
+            models.ComparisonResult.metric == "overall",
+            models.ComparisonResult.ai_value.is_not(None),
+            models.ComparisonResult.human_value.is_not(None),
+        ).count()
+    dashboard = client.get("/api/dashboard").json()
+    assert dashboard["kpis"]["total_comparisons"] == expected_valid_count
+    assert dashboard["kpis"]["raw_execution_datasets"] == 50
+    assert dashboard["kpis"]["incomplete_comparisons"] == 0
+    assert sum(dashboard["outcomes"].values()) == expected_valid_count
+
+    detailed = client.get(f"/api/comparisons/{imported.comparison_id}/detailed")
+    assert detailed.status_code == 200
+    report = detailed.json()
+    assert report["experiment"]["status"] == "execution_only"
+    assert report["reliability"]["human"]["pass_rate"] == 100.0
+    assert report["executive_result"]["ai_overall"] is None
+    assert report["executive_result"]["direction"] is None
+    assert report["test_cases"]["ai"][0]["test_case_id"] > 0
+    with SessionLocal() as s:
+        p001_case_ids = {
+            tc.test_case_id for tc in s.query(models.TestCase).filter_by(problem_id="P001").all()
+        }
+        imported_case_ids = {
+            tc.test_case_id for tc in s.query(models.TestCaseResult).filter_by(
+                comparison_id=imported.comparison_id, code_variant="AI"
+            ).all()
+        }
+        assert imported_case_ids
+        assert imported_case_ids.issubset(p001_case_ids)
+
+    r = client.get("/api/export/research-report")
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    from openpyxl import load_workbook
+    workbook = load_workbook(BytesIO(r.content), read_only=True, data_only=True)
+    overview = workbook["Research Overview"]
+    overview_values = {overview.cell(row, 1).value: overview.cell(row, 2).value for row in range(1, 20)}
+    assert overview_values["Research Comparisons"] == expected_valid_count
+    assert overview_values["Raw Execution Datasets (scores/winners not calculated)"] == 50
+    assert overview_values["Incomplete Research Records (excluded from scores)"] == 0
+
+
 def test_detailed_report_maintainability_calculation(client):
-    lst = client.get("/api/comparisons").json()
-    cid = lst[0]["comparison_id"]
+    code = sample_python(1)
+    created = client.post("/api/comparisons", json={
+        "problem_id": "P013", "language": "python", "ai_name": "MaintainabilityTest",
+        "ai_code": code, "human_code": code, "experiment_type": "RESEARCH",
+    })
+    assert created.status_code == 200
+    cid = created.json()["comparison_id"]
     r = client.get(f"/api/comparisons/{cid}/detailed")
     assert r.status_code == 200
     data = r.json()

@@ -218,7 +218,7 @@ def generate_pdf_report(comparison_id: int) -> bytes:
         ["OVERALL RESULT", ""],
         [f"AI Overall Score", f"{ai_overall:.3f} / 100" if ai_overall is not None else "N/A"],
         [f"Human Overall Score", f"{hu_overall:.3f} / 100" if hu_overall is not None else "N/A"],
-        ["Difference (AI − Human)", f"{round((ai_overall or 0) - (hu_overall or 0), 3):.3f}"],
+        ["Difference (AI − Human)", f"{round(ai_overall - hu_overall, 3):.3f}" if ai_overall is not None and hu_overall is not None else "N/A"],
         ["Result", winner_label],
         ["Data Classification", data_classification],
     ]

@@ -58,6 +58,8 @@ export interface DashboardData {
     problems_remaining: number;
     completion_percentage: number;
     total_comparisons: number;
+    raw_execution_datasets: number;
+    incomplete_comparisons: number;
     pilot_comparisons: number;
     ai_systems_count: number;
   };
@@ -74,14 +76,32 @@ export interface DashboardData {
     ai_overall: number | null;
     human_overall: number | null;
   }>;
+  python_benchmark_results?: Array<{
+    problem_id: string;
+    problem_name: string;
+    comparison_id: number | null;
+    ai: PythonBenchmarkVariant;
+    human: PythonBenchmarkVariant;
+  }>;
+}
+
+export interface PythonBenchmarkVariant {
+  status: string;
+  total: number;
+  passed: number;
+  failed: number;
+  errors: number;
+  timeouts: number;
+  execution_time_ms: number | null;
+  error_message: string | null;
 }
 
 export interface ComparisonMetric {
   metric: string;
   ai_value: number;
   human_value: number;
-  difference: number;
-  direction: string;
+  difference: number | null;
+  direction: string | null;
   percentage_difference: number | null;
   statistical_status: string;
 }
@@ -118,6 +138,7 @@ export interface StaticAnalysisFinding {
 
 export interface TestCaseResult {
   test_case_id: number;
+  input?: string | null;
   status: string;
   actual_output: string | null;
   expected_output: string | null;
@@ -131,8 +152,8 @@ export interface TestCaseResult {
 
 export interface ExecutionSummary {
   execution_status: string;
-  execution_time_ms: number;
-  pass_rate: number;
+  execution_time_ms: number | null;
+  pass_rate: number | null;
   total_test_cases: number;
   passed_count: number;
   failed_count: number;
@@ -177,8 +198,8 @@ export interface Report {
   scores: {
     ai: ScoreDimension[];
     human: ScoreDimension[];
-    ai_overall: number;
-    human_overall: number;
+    ai_overall: number | null;
+    human_overall: number | null;
   };
   comparison: ComparisonMetric[];
 }
@@ -208,9 +229,9 @@ export interface DetailedReport {
   executive_result: {
     ai_overall: number | null;
     human_overall: number | null;
-    difference: number;
+    difference: number | null;
     percentage_difference: number | null;
-    direction: string;
+    direction: string | null;
     neutral_statement: string;
   };
   six_dimensions: Array<{
@@ -218,7 +239,7 @@ export interface DetailedReport {
     ai_value: number | null;
     human_value: number | null;
     difference: number | null;
-    direction: string;
+    direction: string | null;
     percentage_difference: number | null;
   }>;
   preflight: {
@@ -237,8 +258,8 @@ export interface DetailedReport {
     note: string;
   };
   maintainability: {
-    ai: { components: Record<string, MaintainabilityComponent>; final_score: number };
-    human: { components: Record<string, MaintainabilityComponent>; final_score: number };
+    ai: { components: Record<string, MaintainabilityComponent>; final_score: number | null };
+    human: { components: Record<string, MaintainabilityComponent>; final_score: number | null };
     formula: string;
     reference_bounds: Record<string, { min: number; max: number }>;
     weights: Record<string, number>;
@@ -246,7 +267,7 @@ export interface DetailedReport {
   security: {
     ai: { findings: SecurityFinding[]; count: number; tool_status: string | null };
     human: { findings: SecurityFinding[]; count: number; tool_status: string | null };
-    direction: string;
+    direction: string | null;
     note: string;
   };
   complexity: {
@@ -254,7 +275,7 @@ export interface DetailedReport {
     human: Record<string, number>;
     normalized_ai: number | null;
     normalized_human: number | null;
-    direction: string;
+    direction: string | null;
     note: string;
   };
   code_quality: {
@@ -262,7 +283,7 @@ export interface DetailedReport {
     human: { findings: StaticAnalysisFinding[]; count: number; tool_status: string | null };
     normalized_ai: number | null;
     normalized_human: number | null;
-    direction: string;
+    direction: string | null;
     note: string;
   };
   scoring_calculation: {

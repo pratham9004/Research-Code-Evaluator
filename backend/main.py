@@ -9,8 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import FRONTEND_DIR
-from backend.db.session import init_db, SessionLocal
-from backend.db import models
+from backend.db.session import init_db
 from backend.db.seed import load_problems
 from backend.api import problems, comparisons, dashboard, export
 from backend.api import data_management
@@ -20,9 +19,10 @@ from backend.scoring.scoring import load_config
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan: initialise DB and seed problem bank on startup."""
+    """Initialise the database and seed benchmark problem definitions."""
     init_db()
     load_problems()
+
     yield
 
 

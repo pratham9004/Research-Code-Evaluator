@@ -15,6 +15,8 @@ const problems = [
     entry_function: 'solve',
     compared: false,
     test_case_count: 5,
+    research_focus: 'Correctness, algorithmic approach',
+    security_relevance: 'low',
   },
 ];
 
@@ -28,7 +30,7 @@ vi.mock('../api', () => ({
 describe('Solve Problems smoke test', () => {
   it('validates code inputs before submitting', async () => {
     render(<SolveProblems onReport={() => {}} />);
-    await screen.findByRole('option', { name: /Two Sum/ });
+    await screen.findByRole('option', { name: /P001.*Two Sum.*Reliability/i });
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'P001' } });
     fireEvent.click(await screen.findByText('Submit & Compare'));
     expect(await screen.findByText('Both AI and Human code are required.')).toBeTruthy();

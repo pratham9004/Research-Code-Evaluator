@@ -12,13 +12,23 @@ function Pill({ children, color }: { children: React.ReactNode; color?: string }
   return <span className="pill" style={{ background: bg, color: textColor }}>{children}</span>;
 }
 
+function displayDirection(direction: string | null | undefined): string {
+  return direction || 'UNAVAILABLE';
+}
+
 export default function DetailedReport({ reportId, onBack }: { reportId: number; onBack: () => void }) {
   const [report, setReport] = useState<DetailedReportData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [exportingPdf, setExportingPdf] = useState(false);
 
   useEffect(() => {
-    api.getDetailedComparison(reportId).then(setReport).finally(() => setLoading(false));
+    setLoading(true);
+    setLoadError(null);
+    api.getDetailedComparison(reportId)
+      .then(setReport)
+      .catch((e: Error) => setLoadError(e.message))
+      .finally(() => setLoading(false));
   }, [reportId]);
 
   async function handleExportPdf() {
@@ -33,10 +43,11 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
   }
 
   if (loading) return <div className="page"><p>Loading detailed report…</p></div>;
-  if (!report) return <div className="page"><p>Report not found.</p></div>;
+  if (!report) return <div className="page"><p>{loadError || 'Report not found.'}</p></div>;
 
   const e = report.experiment;
   const exec_ = report.executive_result;
+  const rawExecution = e.status.toLowerCase() === 'execution_only';
 
   return (
     <div className="page report-page">
@@ -49,9 +60,9 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
         </div>
       </div>
 
-      <h2 className="page-title">Detailed Research Report #{e.comparison_id}</h2>
+      <h2 className="page-title">{rawExecution ? 'Detailed Raw Execution Report' : 'Detailed Research Report'} #{e.comparison_id}</h2>
       <p className="page-sub">
-        {e.problem_title} · {e.language} · AI: {e.ai_name}
+        {e.problem_id} — {e.problem_title} · {e.language} · AI: {e.ai_name} · reference: Human
       </p>
 
       {/* SECTION 1 — EXPERIMENT INFORMATION */}
@@ -67,7 +78,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
             <tr><td>Language</td><td className="wrap-text nowrap">{e.language}</td></tr>
             <tr><td>AI System</td><td className="wrap-text">{e.ai_name}</td></tr>
             <tr><td>Experiment Type</td><td className="wrap-text"><Pill color={e.is_pilot ? 'human' : 'ai'}>{e.experiment_type}</Pill></td></tr>
-            <tr><td>Status</td><td className="wrap-text"><Pill>{e.status}</Pill></td></tr>
+            <tr><td>Status</td><td className="wrap-text"><Pill>{rawExecution ? 'RAW EXECUTION DATA' : e.status}</Pill></td></tr>
             <tr><td>Problem Version</td><td className="wrap-text">{e.problem_version ?? 'N/A'}</td></tr>
             <tr><td>Test Case Version</td><td className="wrap-text">{e.test_case_version ?? 'N/A'}</td></tr>
             <tr><td>Created At</td><td className="wrap-text">{e.created_at}</td></tr>
@@ -84,16 +95,18 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
       {/* SECTION 2 — EXECUTIVE RESULT */}
       <div className="card" style={{ marginBottom: 18 }}>
         <SectionTitle>2. Executive Result</SectionTitle>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+        {rawExecution ? <p className="obs">This record contains raw execution data only. Comparative scores and an AI/Human winner have not been calculated.</p> : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
           <div className="kpi"><div className="value">{exec_.ai_overall?.toFixed(2) ?? 'N/A'}</div><div className="label">AI Overall Score /100</div></div>
           <div className="kpi"><div className="value">{exec_.human_overall?.toFixed(2) ?? 'N/A'}</div><div className="label">Human Overall Score /100</div></div>
           <div className="kpi"><div className="value">{(exec_.difference)?.toFixed(2) ?? 'N/A'}</div><div className="label">Difference</div></div>
           <div className="kpi"><div className="value">{exec_.percentage_difference?.toFixed(2) ?? 'N/A'}%</div><div className="label">Percentage Difference</div></div>
-        </div>
-        <p style={{ marginTop: 12 }}>
-          Overall comparison: <Pill color={exec_.direction.toLowerCase()}>{exec_.direction}</Pill>
-        </p>
-        <p className="obs muted">{exec_.neutral_statement}</p>
+        </div>}
+        {!rawExecution && <>
+          <p style={{ marginTop: 12 }}>
+            Overall comparison: <Pill color={exec_.direction?.toLowerCase()}>{displayDirection(exec_.direction)}</Pill>
+          </p>
+          <p className="obs muted">{exec_.neutral_statement}</p>
+        </>}
       </div>
 
       {/* SECTION 3 — PREFLIGHT VALIDATION */}
@@ -109,7 +122,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
       </div>
 
       {/* SECTION 4 — SIX-DIMENSION COMPARISON */}
-      <div className="card" style={{ marginBottom: 18 }}>
+      {!rawExecution && <div className="card" style={{ marginBottom: 18 }}>
         <SectionTitle>3. Six-Dimension Comparison</SectionTitle>
         <table>
           <thead><tr><th>Dimension</th><th className="ai-col">AI</th><th className="human-col">Human</th><th>Difference</th><th>Direction</th></tr></thead>
@@ -120,12 +133,12 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
                 <td className="ai-col">{d.ai_value?.toFixed(3) ?? 'N/A'}</td>
                 <td className="human-col">{d.human_value?.toFixed(3) ?? 'N/A'}</td>
                 <td>{d.difference?.toFixed(3) ?? 'N/A'}</td>
-                <td><Pill color={d.direction.toLowerCase()}>{d.direction}</Pill></td>
+                <td><Pill color={d.direction?.toLowerCase()}>{displayDirection(d.direction)}</Pill></td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      </div>}
 
       {/* SECTION 4 — RELIABILITY */}
       <div className="card" style={{ marginBottom: 18 }}>
@@ -143,18 +156,19 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
                   <td>{report.reliability[variant].failed_count}</td>
                   <td>{report.reliability[variant].error_count}</td>
                   <td>{report.reliability[variant].timeout_count}</td>
-                  <td>{report.reliability[variant].pass_rate.toFixed(2)}%</td>
+                  <td>{report.reliability[variant].pass_rate?.toFixed(2) ?? 'N/A'}%</td>
                 </tr>
               </tbody>
             </table>
             <div style={{ marginTop: 8 }}>
               <strong>Test Case Results:</strong>
               <table>
-                <thead><tr><th>#</th><th>Status</th><th>Time (ms)</th><th>Actual</th><th>Expected</th><th>Error</th></tr></thead>
+                <thead><tr><th>Test Case ID</th><th>Input</th><th>Status</th><th>Time (ms)</th><th>Actual</th><th>Expected</th><th>Error</th></tr></thead>
                 <tbody>
                   {report.reliability[variant].cases.map((c, i) => (
                     <tr key={i}>
                       <td>{c.test_case_id}</td>
+                      <td className="wrap-text">{c.input ?? 'N/A'}</td>
                       <td><Pill color={c.status === 'PASS' ? 'pass' : c.status === 'ERROR' ? 'err' : c.status === 'TIMEOUT' ? 'fail' : 'fail'}>{c.status}</Pill></td>
                       <td>{c.execution_time_ms ?? 'N/A'}</td>
                       <td>{c.actual_output}</td>
@@ -183,6 +197,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
         </table>
       </div>
 
+      {!rawExecution && <>
       {/* SECTION 6 — MAINTAINABILITY */}
       <div className="card" style={{ marginBottom: 18 }}>
         <SectionTitle>6. Maintainability</SectionTitle>
@@ -190,7 +205,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
         {(['ai', 'human'] as const).map((variant) => (
           <div key={variant} style={{ marginBottom: 12 }}>
             <div className="section-title" style={{ marginTop: 0 }}>{variant === 'ai' ? 'AI' : 'Human'} Maintainability</div>
-            <p><strong>Final Score: {report.maintainability[variant].final_score.toFixed(3)} /100</strong></p>
+            <p><strong>Final Score: {report.maintainability[variant].final_score?.toFixed(3) ?? 'N/A'} /100</strong></p>
             <table>
               <thead><tr><th>Component</th><th>Raw Value</th><th>Ref Min</th><th>Ref Max</th><th>Normalized</th><th>Weight</th><th>Contribution</th></tr></thead>
               <tbody>
@@ -341,7 +356,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
                 <td className="human-col">{r.human_value?.toFixed(3) ?? 'N/A'}</td>
                 <td>{r.difference?.toFixed(3) ?? 'N/A'}</td>
                 <td>{r.percentage_difference?.toFixed(2) ?? 'N/A'}%</td>
-                <td><Pill color={r.direction.toLowerCase()}>{r.direction}</Pill></td>
+                <td><Pill color={r.direction?.toLowerCase()}>{displayDirection(r.direction)}</Pill></td>
               </tr>
             ))}
           </tbody>
@@ -374,6 +389,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
           </table>
         )}
       </div>
+      </>}
 
       {/* SECTION 14 — TEST CASE RESULTS */}
       <div className="card" style={{ marginBottom: 18 }}>
@@ -398,7 +414,7 @@ export default function DetailedReport({ reportId, onBack }: { reportId: number;
       {/* SECTION 15 — INTERPRETATION */}
       <div className="card" style={{ marginBottom: 18 }}>
         <SectionTitle>15. Research Interpretation</SectionTitle>
-        <p>{report.interpretation.statement}</p>
+        <p>{rawExecution ? 'Raw execution data only; no aggregate scores or winner are available for this record.' : report.interpretation.statement}</p>
         <p className="obs muted">{report.interpretation.disclaimer}</p>
       </div>
     </div>

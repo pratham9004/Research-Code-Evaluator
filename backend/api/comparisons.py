@@ -539,10 +539,10 @@ def build_detailed_report(session, comparison_id: int) -> dict:
     ai_quality = [f for f in ai_static if f.category == "code_quality"]
     hu_quality = [f for f in hu_static if f.category == "code_quality"]
 
-    ai_mi_components = _maintainability_components(ai_complexity, cfg)
-    hu_mi_components = _maintainability_components(hu_complexity, cfg)
-    ai_mi = round(sum(v["weighted_contribution"] for v in ai_mi_components.values()), 3)
-    hu_mi = round(sum(v["weighted_contribution"] for v in hu_mi_components.values()), 3)
+    ai_mi_components = _maintainability_components(ai_complexity, cfg) if ai_complexity else {}
+    hu_mi_components = _maintainability_components(hu_complexity, cfg) if hu_complexity else {}
+    ai_mi = round(sum(v["weighted_contribution"] for v in ai_mi_components.values()), 3) if ai_mi_components else None
+    hu_mi = round(sum(v["weighted_contribution"] for v in hu_mi_components.values()), 3) if hu_mi_components else None
 
     ai_overall = next((s.overall_score for s in ai_scores if s.overall_score is not None), None)
     hu_overall = next((s.overall_score for s in hu_scores if s.overall_score is not None), None)
@@ -606,6 +606,8 @@ def build_detailed_report(session, comparison_id: int) -> dict:
     def tc_to_list(cases):
         return [{
             "test_case_id": c.test_case_id,
+            "input": (session.get(models.TestCase, c.test_case_id).input
+                      if session.get(models.TestCase, c.test_case_id) else None),
             "status": c.status,
             "actual_output": c.actual_output,
             "expected_output": c.expected_output,
@@ -640,9 +642,9 @@ def build_detailed_report(session, comparison_id: int) -> dict:
         "executive_result": {
             "ai_overall": ai_overall,
             "human_overall": hu_overall,
-            "difference": round((ai_overall or 0) - (hu_overall or 0), 3),
-            "percentage_difference": round((ai_overall or 0) / (hu_overall or 1) * 100 - 100, 3) if hu_overall else None,
-            "direction": next((r.direction for r in comp_rows if r.metric == "overall"), "COMPARABLE"),
+            "difference": round(ai_overall - hu_overall, 3) if ai_overall is not None and hu_overall is not None else None,
+            "percentage_difference": round((ai_overall - hu_overall) / abs(hu_overall) * 100, 3) if ai_overall is not None and hu_overall not in (None, 0) else None,
+            "direction": next((r.direction for r in comp_rows if r.metric == "overall"), None),
             "neutral_statement": "This result applies only to this comparison and does not establish a universal superiority of AI-generated code.",
         },
         "six_dimensions": [
@@ -660,9 +662,9 @@ def build_detailed_report(session, comparison_id: int) -> dict:
                 "dimension": "overall",
                 "ai_value": ai_overall,
                 "human_value": hu_overall,
-                "difference": round((ai_overall or 0) - (hu_overall or 0), 3),
-                "direction": next((r.direction for r in comp_rows if r.metric == "overall"), "COMPARABLE"),
-                "percentage_difference": round((ai_overall or 0) / (hu_overall or 1) * 100 - 100, 3) if hu_overall else None,
+                "difference": round(ai_overall - hu_overall, 3) if ai_overall is not None and hu_overall is not None else None,
+                "direction": next((r.direction for r in comp_rows if r.metric == "overall"), None),
+                "percentage_difference": round((ai_overall - hu_overall) / abs(hu_overall) * 100, 3) if ai_overall is not None and hu_overall not in (None, 0) else None,
             }
         ],
         "preflight": {
@@ -671,11 +673,11 @@ def build_detailed_report(session, comparison_id: int) -> dict:
         },
         "reliability": {
             "ai": {
-                **exec_summary(ai_er),
+                **(exec_summary(ai_er) or {}),
                 "cases": tc_to_list(ai_cases),
             },
             "human": {
-                **exec_summary(hu_er),
+                **(exec_summary(hu_er) or {}),
                 "cases": tc_to_list(hu_cases),
             },
             "formula": "Pass Rate = (Passed Test Cases / Total Test Cases) × 100",
@@ -820,7 +822,7 @@ def build_detailed_report(session, comparison_id: int) -> dict:
             "human_complexity": hu_complexity,
         },
         "interpretation": {
-            "statement": f"This comparison shows that {'AI' if ai_overall and hu_overall and ai_overall > hu_overall else 'Human' if hu_overall and ai_overall and hu_overall > ai_overall else 'neither implementation'} achieved a higher overall composite score.",
+            "statement": (f"This comparison shows that {'AI' if ai_overall > hu_overall else 'Human' if hu_overall > ai_overall else 'both implementations'} achieved a higher overall composite score." if ai_overall is not None and hu_overall is not None else "An overall conclusion is unavailable because one or more required measurements are missing."),
             "disclaimer": "This result applies only to this comparison and does not imply a universal conclusion.",
         },
     }

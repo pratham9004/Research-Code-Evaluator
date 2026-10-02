@@ -96,6 +96,28 @@ def load_problems() -> int:
                 existing = session.get(models.Problem, p["id"])
                 if existing:
                     _update_problem(existing, p)
+                    # Keep the database's ordinal test-case mapping aligned with
+                    # the official YAML, while preserving existing test_case_ids
+                    # (and therefore any stored research-result foreign keys).
+                    stored_cases = (session.query(models.TestCase)
+                                    .filter_by(problem_id=p["id"])
+                                    .order_by(models.TestCase.test_case_id).all())
+                    official_cases = p.get("test_cases", [])
+                    for index, tc in enumerate(official_cases):
+                        if index < len(stored_cases):
+                            stored = stored_cases[index]
+                            stored.input = str(tc["input"])
+                            stored.expected_output = str(tc["expected"])
+                            stored.case_type = tc.get("case_type", "functional")
+                            stored.version = p.get("version", 1)
+                        else:
+                            session.add(models.TestCase(
+                                problem_id=p["id"],
+                                input=str(tc["input"]),
+                                expected_output=str(tc["expected"]),
+                                case_type=tc.get("case_type", "functional"),
+                                version=p.get("version", 1),
+                            ))
                 else:
                     problem = _problem_from_dict(p)
                     session.add(problem)

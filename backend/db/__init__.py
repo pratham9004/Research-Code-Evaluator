@@ -1,1 +1,1 @@
-from backend.db import models  # noqa: F401
+from backend.db import benchmark_import, models  # noqa: F401

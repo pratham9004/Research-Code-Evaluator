@@ -11,6 +11,52 @@ const LANG_LABELS: Record<string, string> = {
   javascript: 'JavaScript',
 };
 
+const DIMENSION_KEYWORDS: Record<string, string[]> = {
+  Reliability: ['correctness', 'validation', 'boundary', 'parsing', 'regex', 'logic', 'matching', 'expected', 'stack usage', 'merge logic', 'output', 'session', 'scope', 'token', 'comparison', 'tie-breaking', 'selection', 'search', 'sum', 'sorting'],
+  Performance: ['dynamic programming', 'hash map', 'frequency', 'priority', 'sorting', 'lookup', 'iteration', 'complexity', 'o(log n)', 'overflow', 'summation', 'bounded', 'selection', 'lookup', 'performance'],
+  Maintainability: ['maintainability', 'structure', 'clarity', 'readability', 'organization', 'code quality', 'modular', 'cleanliness'],
+  Security: ['security', 'injection', 'sanitization', 'allowlist', 'escaping', 'xss', 'path traversal', 'shell', 'sql', 'permission', 'access control', 'rbac', 'session management', 'scope-based', 'environment variable', 'token validation', 'safe parsing', 'output encoding'],
+  Complexity: ['complexity', 'o(log n)', 'algorithmic', 'time complexity', 'space complexity'],
+  'Code Quality': ['code quality', 'readability', 'maintainability', 'quality', 'clarity'],
+};
+
+function inferResearchDimensions(problem: Problem): string[] {
+  const source = [
+    problem.title,
+    problem.description,
+    problem.category,
+    problem.research_focus ?? '',
+    problem.security_relevance ?? '',
+    problem.input_spec ?? '',
+    problem.output_spec ?? '',
+    problem.constraints ?? '',
+  ].join(' ').toLowerCase();
+
+  const matches: string[] = [];
+  for (const [dimension, keywords] of Object.entries(DIMENSION_KEYWORDS)) {
+    if (keywords.some((keyword) => source.includes(keyword.toLowerCase()))) {
+      matches.push(dimension);
+    }
+  }
+
+  if (matches.length === 0) {
+    return ['Reliability'];
+  }
+
+  if (problem.security_relevance && problem.security_relevance.toLowerCase() === 'high' && !matches.includes('Security')) {
+    matches.push('Security');
+  }
+
+  const ordered = ['Reliability', 'Performance', 'Maintainability', 'Security', 'Complexity', 'Code Quality'];
+  return ordered.filter((dimension) => matches.includes(dimension));
+}
+
+function getProblemDisplayLabel(problem: Problem): string {
+  const dimensions = inferResearchDimensions(problem);
+  const label = dimensions.join(' + ');
+  return `${problem.problem_id} – ${problem.title} (${label})`;
+}
+
 /** Return the per-language starter template for the selected problem+language. */
 function getStarter(p: Problem, lang: string): string {
   if (lang === 'java' && p.starter_template_java) return p.starter_template_java;
@@ -177,7 +223,7 @@ export default function SolveProblems({ onReport }: { onReport: (r: Report) => v
           <option value="">— Select a problem —</option>
           {problems.map((p) => (
             <option key={p.problem_id} value={p.problem_id}>
-              {p.problem_id} · {p.title} ({p.difficulty})
+              {getProblemDisplayLabel(p)}
             </option>
           ))}
         </select>

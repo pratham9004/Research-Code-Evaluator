@@ -30,7 +30,10 @@ export default function Dashboard() {
         <h2 className="page-title">Dashboard</h2>
         <p className="page-sub">Research progress and analytics</p>
         <div className="empty-state">
-          <h3>No comparison data available yet.</h3>
+          <h3>{data.python_benchmark_results?.some((row) => row.comparison_id != null)
+            ? 'Python execution results are available; aggregate scores are not.'
+            : 'No valid paired comparison data available.'}</h3>
+          <p>{data.kpis.incomplete_comparisons} incomplete records are retained. Records without the complete score dimensions are excluded from aggregate outcome analytics.</p>
           <p>Complete a comparison from <strong>Solve Problems</strong> to populate research analytics.</p>
         </div>
       </div>
@@ -60,6 +63,7 @@ export default function Dashboard() {
         <MetricCard value={k.problems_remaining} label="Remaining" />
         <MetricCard value={`${k.completion_percentage}%`} label="Completion" />
         <MetricCard value={k.total_comparisons} label="Research Comparisons" />
+        <MetricCard value={k.raw_execution_datasets} label="Raw Execution Datasets" />
         <MetricCard value={k.pilot_comparisons} label="Pilot Comparisons" />
         <MetricCard value={k.ai_systems_count} label="AI Systems Used" />
       </div>
@@ -97,12 +101,9 @@ export default function Dashboard() {
                 <h3 className="chart-card__title">{m.label}</h3>
                 <span className="chart-card__note">Mean values</span>
               </div>
-              <BarChart
-                title=""
-                labels={['AI', 'Human']}
-                ai={[m.ai ?? 0]}
-                human={[m.human ?? 0]}
-              />
+              {m.ai !== null && m.human !== null
+                ? <BarChart title="" labels={['AI', 'Human']} ai={[m.ai]} human={[m.human]} />
+                : <p className="obs">No complete paired measurements available.</p>}
             </div>
           );
         })}

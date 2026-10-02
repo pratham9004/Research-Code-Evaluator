@@ -96,8 +96,8 @@ class ExecutionResult(Base):
     failed_count = Column(Integer, nullable=False)
     error_count = Column(Integer, nullable=False)
     timeout_count = Column(Integer, nullable=False)
-    pass_rate = Column(Float, nullable=False)
-    execution_time_ms = Column(Float, nullable=False)
+    pass_rate = Column(Float, nullable=True)
+    execution_time_ms = Column(Float, nullable=True)
     execution_status = Column(String, nullable=False)  # PASS / FAIL / ERROR / TIMEOUT
     stdout = Column(Text, nullable=True)
     stderr = Column(Text, nullable=True)
